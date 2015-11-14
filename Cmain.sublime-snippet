@@ -1,0 +1,25 @@
+<snippet>
+	<content><![CDATA[
+#include <stdio.h>
+#include <stdlib.h>
+
+/** author: mayukh
+ * github.com/mayukh42
+ */
+
+void run_tests () {
+	
+}
+
+int main () {
+	run_tests ();
+
+	return 0;
+}
+
+]]></content>
+	<!-- Optional: Set a tabTrigger to define how to trigger the snippet -->
+	<tabTrigger>cmain</tabTrigger>
+	<!-- Optional: Set a scope to limit where the snippet will trigger -->
+	<scope>source.c++</scope>
+</snippet>
