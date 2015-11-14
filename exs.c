@@ -320,32 +320,16 @@ void period (unsigned n) {
 	free (buf);
 }
 
-/** sqrt_nr ()
- * Square Root of a number using Newton-Raphson method
- */
-void sqrt_nr (double n, double tolerance) {
-	double x0 = n/2.0, x1;
-	int iter = 0;
-	while (true) {
-		x1 = (x0*x0 + n)/(2.0*x0);
-		iter++;
-		if (abs (x0-x1) < tolerance)
-			break;
-		x0 = x1;
-	}
-	printf ("Square root of %.1f = %.2f (%d iterations).\n", n, x1, iter);
-} 
-
 void test_numbers () {
 	// unsigned d = 173;
 	// printf ("reverse of %u = %u\n", d, reverse_num (d, 10));
+
 	// find_circles_within (5);
 	// factors (768);
 	// inverse_round (7, 10);
 	
 	// for (unsigned i = 11; i <= 37; i++)
 	// 	period (i);
-	sqrt_nr (42.0, TOLERANCE);
 }
 
 void run_tests () {
