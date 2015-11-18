@@ -10,7 +10,7 @@
  * tested using int
  */
 
-typedef void * (* wrapper_fn) (void * element);
+// typedef void * (* wrapper_fn) (void * element);
 
 // item (type: int)
 int * wrap_Item (int * v) {

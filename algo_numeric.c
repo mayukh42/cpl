@@ -119,7 +119,6 @@ void matrix_search (int ** xss, int size, int element, Pair * result) {
 		result->x = row, result->y = col;
 		return;
 	}
-
 	row = result->y;
 	col = binary_search (xss[row], 0, size, element);
 	if (col != -1) {
@@ -130,7 +129,72 @@ void matrix_search (int ** xss, int size, int element, Pair * result) {
 	result->y = -1;
 }
 
-void test_matrix_search () {
+/** saddleback_search ()
+ * Saddleback Search algorithm for sorted matrix: O(n)
+ */
+void saddleback_search (int ** xss, int size, int element, Pair * result) {
+	int i = 0, j = size-1;
+	while (element != xss[i][j] && j >= 0 && i < size) {
+		if (element < xss[i][j])
+			j -= 1;
+		else
+			i += 1;
+	}
+	result->x = i;
+	result->y = j;
+}
+
+/** hamming ()
+ * Hamming problem: find first n integers whose only factors are primes 2, 3, 5, other than 1
+ * Axiom 1: 1 is in the sequence
+ * Axiom 2: if x is in sequence, so is 2x, 3x, 5x
+ */ 
+unsigned * hamming (unsigned n) {
+	if (n <= 0)
+		return NULL;
+	unsigned * seq = (unsigned *) malloc (sizeof (unsigned) * n);
+	unsigned i = 0, x2 = 2, x3 = 3, x5 = 5, y2 = 0, y3 = 0, y5 = 0;
+	seq[i++] = 1;
+	while (i < n) {
+		unsigned x = seq[i-1] + 1;
+		while (true) {
+			if (!(x % x2)) {
+				y2 = x;
+				break;
+			}
+			x++;
+		}
+		x = seq[i-1] + 1;
+		while (true) {
+			if (!(x % x3)) {
+				y3 = x;
+				break;
+			}
+			x++;
+		}
+		x = seq[i-1] + 1;
+		while (true) {
+			if (!(x % x5)) {
+				y5 = x;
+				break;
+			}
+			x++;
+		}
+		seq[i++] = y2 < y3 ? (y2 < y5 ? y2 : y5) : (y3 < y5 ? y3 : y5); 
+	}
+	return seq;
+}
+
+void test_hamming () {
+	unsigned n = 42;
+	unsigned * seq = hamming (n);
+	for (unsigned i = 0; i < n; i++)
+		printf ("%d ", seq[i]);
+	printf ("\n");
+	free (seq);
+}
+
+void test_matrix_search_algorithms () {
 	int mn = 1, mx = 45, size = 5;
 	int ** xss = (int **) malloc (sizeof (int *) * size);
 	int elements[] = {1,3,5,7,9,10,12,14,16,18,19,21,23,25,27,28,30,32,34,36,37,39,41,43,45};
@@ -144,9 +208,12 @@ void test_matrix_search () {
 	for (int i = mn; i <= mx; i++) {
 		matrix_search (xss, size, i, ret);
 		if (ret->x != -1 && ret->y != -1)
-			printf ("%d: [%d,%d]\n", i, ret->x, ret->y);
-		else
-			printf ("%d: not found in the matrix\n", i);
+			printf ("matrix] %d: [%d,%d]\n", i, ret->x, ret->y);
+
+		ret->x = -1, ret->y = -1;
+		saddleback_search (xss, size, i, ret);
+		if (ret->x != size && ret->y != -1)
+			printf ("saddleback] %d: [%d,%d]\n", i, ret->x, ret->y);
 	}
 
 	for (int i = 0; i < size; i++)
@@ -172,7 +239,8 @@ void test_123 () {
 
 void run_tests() {
 	// test_123 ();
-	test_matrix_search ();
+	// test_matrix_search_algorithms ();
+	test_hamming ();
 }
 
 int main() {
