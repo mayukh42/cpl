@@ -43,6 +43,9 @@ Problems coded in C
 
 &nbsp;&nbsp;&nbsp;&nbsp;sqrt_nr, minmax, binary_search, matrix_search
 
+16. arrayutils.c, arrayutils.h: Some array utility functions (WIP)
+
+16. trie.c, trie.h: The Trie data structure
 
 All programs are valgrind tested for memory leaks.
 
