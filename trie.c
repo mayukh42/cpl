@@ -5,13 +5,24 @@
 /** author: mayukh
  * github.com/mayukh42
  */
- 
+
 void test_basic_trie () {
     Trie * root = create_Trie_Root ();
     char * tokens = "aeiou";
     for (unsigned i = 0; i < strlen (tokens); i++)
         insert_char (root, tokens[i], i == 0 || i == 2 ? 1 : 0);
-    print_Trie (root); 
+
+    print_Trie (root);     
+    delete_Trie (root);
+}
+
+void test_insert_words () {
+    Trie * root = create_Trie_Root ();
+    char * words[] = {"he", "helios", "helium", "hell", "help", "hello"};
+    for (int i = 0; i < 6; i++)
+        insert_word (root, *(words+i));
+    
+    print_Trie (root);
     delete_Trie (root);
 }
  
@@ -24,7 +35,7 @@ void test_append_char () {
         word_heap = new_word;
         new_word = NULL;
     }
-    if (word_heap) 
+    if (word_heap)
     	free (word_heap);
     if (new_word) 
     	free (new_word);
@@ -32,7 +43,8 @@ void test_append_char () {
  
 void run_tests() {
     // test_append_char ();
-    test_basic_trie (); 
+    // test_basic_trie (); 
+    test_insert_words ();
 }
  
 int main() {
