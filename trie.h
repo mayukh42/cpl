@@ -1,51 +1,15 @@
 #ifndef __TRIE_H
 #define __TRIE_H
- 
-#include <string.h>
+
+#include "string_utils.h"
 #define ALPHABETS 26
+#define MAX_WORD_LENGTH 32
  
-
-/** string utilities
- * can be refactored into separate header
- */
-
-/** createString ()
- * utility to create C style strings
- */
-char * createString (const char * src) {
-    int length = strlen (src);
-    char * dst = (char *) malloc (sizeof(char) * (length+1));
-    strcpy (dst, src);
-    return dst;
-}
-
-/** appendChar ()
- * if c is null character, return word
- * if word is null, create single character string (along with null termination)
- * otherwise, create a new string with c as last non-null character, followed by null character
- */
-char * appendChar (char * word, char c) {
-	char * new_word = NULL;
-    if (word) {
-    	int length = strlen (word);
-	    new_word = (char *) malloc (sizeof(char) * (length+2));
-	    if (length)
-	    	strcpy (new_word, word);
-	    new_word[length] = c;
-	    new_word[length+1] = 0;
-    }
-    else {
-    	new_word = (char *) malloc (sizeof(char) * (2));
-    	new_word[0] = c;
-    	new_word[1] = 0;
-    }
-    return new_word;
-}
-
 /** the Trie data structure
  * simplified: designed for only lowercase letters
  * storage is biased towards common prefix: 
  * the more common prefixes exist in the inserted words, more OPT is space
+ * ref. suggestions () in trie.c for practical usage example
  */ 
 struct Trie;
  
@@ -122,7 +86,7 @@ Trie * insertChar (Trie * node, char c, int endpt) {
  * insert a word in the trie
  * mark the last node as word-endpt
  */
-Trie * insertWord (Trie * root, char * cs) {
+Trie * insertWord (Trie * root, const char * cs) {
 	if (!root || !cs)
 		return root;
 
@@ -131,6 +95,33 @@ Trie * insertWord (Trie * root, char * cs) {
 	for (int i = 0; i < length; i++)
 		node = insertChar (node, *(cs+i), i == length-1 ? 1 : 0);
 	return node;
+}
+
+/** findPrefixEnd ()
+ * find the trie node holding last char of the prefix
+ */
+Trie * findPrefixEnd (Trie * root, const char * cs) {
+	if (!cs || !root)
+		return root;
+
+	int length = strlen (cs);
+	Trie * node = root;
+	for (int i = 0; i < length; i++) {
+		Trie * child = getChild (node, *(cs+i));
+		if (child)
+			node = child;
+		else
+			break;
+	}
+	return node;
+}
+
+/** printTrieNode ()
+ * print the word and endpt flag contained in the node
+ */
+void printTrieNode (Trie * node) {
+	if (node)
+		printf ("%s %s\n", node->word ? node->word : "", node->endpt ? "." : "");  
 }
 
 /** printTrieRec ()
@@ -142,7 +133,7 @@ void printTrieRec (Trie * node, unsigned level) {
  
  	for (unsigned i = 0; i < level; i++)
     	printf ("    ");
-    printf ("%s %s\n", node->word ? node->word : "", node->endpt ? "." : "");    
+    printTrieNode (node);
     for (int i = 0; i < ALPHABETS; i++)
         printTrieRec (node->children[i], level+1);
 }
@@ -155,6 +146,26 @@ void printTrie (Trie * node) {
     unsigned trie_level = 0;
     printTrieRec (node, trie_level);
     printf ("]\n");
+}
+
+/** buildTrieFromFile ()
+ * build a trie from dictionary of words in a text file
+ * only lowercase characters are considered
+ */ 
+unsigned buildTrieFromFile (const char * text_file, Trie * trie) {
+	FILE * text_f = fopen (text_file, "r");
+    char * line = (char *) malloc (sizeof (char) * MAX_WORD_LENGTH);
+    unsigned num_words = 0;
+    while (fgets (line, MAX_WORD_LENGTH, text_f)) {
+        for (unsigned i = 0; i < strlen (line); i++)
+            if (line[i] == '\n')
+                line[i] = 0;
+        insertWord (trie, line);
+        num_words++;
+    }
+    fclose (text_f);
+    free (line);
+    return num_words;
 }
  
 #endif
