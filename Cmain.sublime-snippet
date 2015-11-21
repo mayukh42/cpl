@@ -7,12 +7,12 @@
  * github.com/mayukh42
  */
 
-void run_tests () {
+void runTests () {
 	
 }
 
 int main () {
-	run_tests ();
+	runTests ();
 
 	return 0;
 }

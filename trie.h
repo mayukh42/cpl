@@ -9,22 +9,22 @@
  * can be refactored into separate header
  */
 
-/** create_String ()
+/** createString ()
  * utility to create C style strings
  */
-char * create_String (const char * src) {
+char * createString (const char * src) {
     int length = strlen (src);
     char * dst = (char *) malloc (sizeof(char) * (length+1));
     strcpy (dst, src);
     return dst;
 }
 
-/** append_char ()
+/** appendChar ()
  * if c is null character, return word
  * if word is null, create single character string (along with null termination)
  * otherwise, create a new string with c as last non-null character, followed by null character
  */
-char * append_char (char * word, char c) {
+char * appendChar (char * word, char c) {
 	char * new_word = NULL;
     if (word) {
     	int length = strlen (word);
@@ -55,12 +55,12 @@ typedef struct Trie {
     struct Trie * children[ALPHABETS];
 } Trie;
 
-/** create_Trie_Node ()
+/** createTrieNode ()
  * cons
  */
-Trie * create_Trie_Node (char * word, char c, int endpt) {
+Trie * createTrieNode (char * word, char c, int endpt) {
     Trie * node = (Trie *) malloc (sizeof (Trie));
-    node->word = append_char (word, c);
+    node->word = appendChar (word, c);
     node->endpt = endpt;
     for (int i = 0; i < ALPHABETS; i++)
         node->children[i] = NULL;
@@ -70,31 +70,31 @@ Trie * create_Trie_Node (char * word, char c, int endpt) {
 /** default cons
  * lame attempt at overloading
  */
-Trie * create_Trie_Root () {
+Trie * createTrieRoot () {
 	char nullc = 0;
-    Trie * node = create_Trie_Node (&nullc, 0, 0);
+    Trie * node = createTrieNode (&nullc, 0, 0);
     return node;
 }
 
-/** delete_Trie ()
+/** deleteTrie ()
  * recursive delete ()
  */
-void delete_Trie (Trie * node) {
+void deleteTrie (Trie * node) {
     if (node) {
         if (node->word)
             free (node->word);
         if (node->children) {
             for (int i = 0; i < ALPHABETS; i++) 
-                delete_Trie (node->children[i]);
+                deleteTrie (node->children[i]);
         }
         free (node);
     }
 }
 
-/** get_child ()
+/** getChild ()
  * returns the child of trie corresponding to given char
  */
-Trie * get_child (Trie * node, char c) {
+Trie * getChild (Trie * node, char c) {
     if (c < 'a' || c > 'z' || !node)
         return NULL;
  
@@ -102,58 +102,58 @@ Trie * get_child (Trie * node, char c) {
     return node->children[index];
 }
 
-/** insert_char ()
+/** insertChar ()
  * insert a character if it does not exist in the trie children
  */ 
-Trie * insert_char (Trie * node, char c, int endpt) {
+Trie * insertChar (Trie * node, char c, int endpt) {
     if (!node || !c)
         return NULL;
  
-    Trie * child = get_child (node, c);
+    Trie * child = getChild (node, c);
     if (!child) {
-        child = create_Trie_Node (node->word, c, endpt);
+        child = createTrieNode (node->word, c, endpt);
         int index = c-'a';
         node->children[index] = child;
     }
     return child;
 }
 
-/** insert_word ()
+/** insertWord ()
  * insert a word in the trie
  * mark the last node as word-endpt
  */
-Trie * insert_word (Trie * root, char * cs) {
+Trie * insertWord (Trie * root, char * cs) {
 	if (!root || !cs)
 		return root;
 
 	int length = strlen (cs);
 	Trie * node = root;
 	for (int i = 0; i < length; i++)
-		node = insert_char (node, *(cs+i), i == length-1 ? 1 : 0);
+		node = insertChar (node, *(cs+i), i == length-1 ? 1 : 0);
 	return node;
 }
 
-/** print_Trie_rec ()
+/** printTrieRec ()
  * recursive print function
  */
-void print_Trie_rec (Trie * node, unsigned level) {
+void printTrieRec (Trie * node, unsigned level) {
     if (!node)
         return;
  
  	for (unsigned i = 0; i < level; i++)
     	printf ("    ");
-    printf ("'%s' %s\n", node->word ? node->word : "", node->endpt ? "w" : "n");    
+    printf ("%s %s\n", node->word ? node->word : "", node->endpt ? "." : "");    
     for (int i = 0; i < ALPHABETS; i++)
-        print_Trie_rec (node->children[i], level+1);
+        printTrieRec (node->children[i], level+1);
 }
 
-/** print_Trie ()
+/** printTrie ()
  * wrapper function for recursive print
  */
-void print_Trie (Trie * node) {
+void printTrie (Trie * node) {
     printf ("[");
     unsigned trie_level = 0;
-    print_Trie_rec (node, trie_level);
+    printTrieRec (node, trie_level);
     printf ("]\n");
 }
  

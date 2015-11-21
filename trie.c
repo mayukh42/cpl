@@ -6,30 +6,30 @@
  * github.com/mayukh42
  */
 
-void test_basic_trie () {
-    Trie * root = create_Trie_Root ();
+void testBasicTrie () {
+    Trie * root = createTrieRoot ();
     char * tokens = "aeiou";
     for (unsigned i = 0; i < strlen (tokens); i++)
-        insert_char (root, tokens[i], i == 0 || i == 2 ? 1 : 0);
+        insertChar (root, tokens[i], i == 0 || i == 2 ? 1 : 0);
 
-    print_Trie (root);     
-    delete_Trie (root);
+    printTrie (root);
+    deleteTrie (root);
 }
 
-void test_insert_words () {
-    Trie * root = create_Trie_Root ();
+void testInsertWords () {
+    Trie * root = createTrieRoot ();
     char * words[] = {"he", "helios", "helium", "hell", "help", "hello"};
     for (int i = 0; i < 6; i++)
-        insert_word (root, *(words+i));
+        insertWord (root, *(words+i));
     
-    print_Trie (root);
-    delete_Trie (root);
+    printTrie (root);
+    deleteTrie (root);
 }
  
-void test_append_char () {    
+void testAppendChar () {    
     char * vowels = "aeiou", * word_heap = NULL, * new_word = NULL;
     for (int i = 0; i < 5; i++) {
-        new_word = append_char (word_heap, vowels[i]);
+        new_word = appendChar (word_heap, vowels[i]);
         printf ("%s, %s\n", word_heap, new_word);
         free (word_heap);
         word_heap = new_word;
@@ -41,14 +41,14 @@ void test_append_char () {
     	free (new_word);
 }
  
-void run_tests() {
-    // test_append_char ();
-    // test_basic_trie (); 
-    test_insert_words ();
+void runTests () {
+    // testAppendChar ();
+    // testBasicTrie ();
+    testInsertWords ();
 }
  
 int main() {
-    run_tests();
+    runTests ();
  
     return 0;
 }
