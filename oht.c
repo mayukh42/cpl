@@ -63,10 +63,12 @@ void testHf2 () {
 void testHf () {
 	int xs[] = {4,14,28,42,128,28};
 	printf ("double hash fn:\n");
+	OHashTable * oht = createOht (hf1Int, hf2Int, equalsInt, printInt);
 	for (int i = 0; i < 6; i++) {
-		int h = hf (xs+i, 1, hf1Int, hf2Int);
+		int h = hf (oht, xs+i, 1);
 		printf ("%d: %d\n", xs[i], h);	
 	}
+	deleteOht (oht);
 }
 
 
@@ -75,27 +77,27 @@ void testOht () {
 	int ** xs = (int **) malloc (sizeof (int *) * count);
 	for (int i = 0; i < count; i++) {
 		xs[i] = (int *) malloc (sizeof (int));
-		int val = rand () % (MAX_ELEMENTS<<2);
+		int val = rand () % (MAX_ELEMENTS<<3);
 		* xs[i] = val;
 	}
-	OHashTable * oht = createOhtFromArray ((void **) xs, count, hf1Int, hf2Int, equalsInt);
-	printOht (oht, printInt);
+	OHashTable * oht = createOhtFromArray ((void **) xs, count, hf1Int, hf2Int, equalsInt, printInt);
+	printOht (oht);
 
 	// insert same elements again
 	for (int i = 0; i < (count>>2); i++) {
 		int * x = xs[rand () % count];
-		int res = ohtInsert (oht, x, hf1Int, hf2Int, equalsInt);
+		int res = ohtInsert (oht, x);
 		printf ("  %d %s\n", * x, res != -1 ? "inserted" : "not inserted");
 	}
-	printOht (oht, printInt);
+	printOht (oht);
 
 	// remove some elements
 	for (int i = 0; i < (count>>2); i++) {
 		int * x = xs[rand () % count];
-		int res = ohtRemove (oht, x, hf1Int, hf2Int, equalsInt);
+		int res = ohtRemove (oht, x);
 		printf ("  %d %s\n", * x, res != -1 ? "removed" : "not removed");
 	}
-	printOht (oht, printInt);
+	printOht (oht);
 
 	deleteOht (oht);
 	for (int i = 0; i < count; i++)
