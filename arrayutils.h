@@ -7,43 +7,61 @@ typedef enum Type {
 	_FLOAT,
 	_DOUBLE,
 	_LONG,
-	_STRING
+	_STR
 } Type;
 
-typedef void (* out) (void *);
-
-void out_int (int * x) { if (x) printf ("%d ", * x); }
-void out_char (char * x) { if (x) printf ("%c ", * x); }
-void out_float (float * x) { if (x) printf ("%.2f ", * x); }
-void out_unsigned (unsigned * x) { if (x) printf ("%u ", * x); }
-void out_double (double * x) { if (x) printf ("%.2f ", * x); }
-void out_long (long * x) { if (x) printf ("%ld ", * x); }
-void out_str (char ** x) { if (x && (* x)) printf ("%s ", * x); }
+typedef void (* outArr) (void * arr, int count);
 
 
-void print_arr (void * element, Type t) {
+void outInt (int * x) { if (x) printf ("%d ", * x); }
+void outChar (char * x) { if (x) printf ("%c ", * x); }
+void outFloat (float * x) { if (x) printf ("%.2f ", * x); }
+void outUnsigned (unsigned * x) { if (x) printf ("%u ", * x); }
+void outDouble (double * x) { if (x) printf ("%.2f ", * x); }
+void outLong (long * x) { if (x) printf ("%ld ", * x); }
+void outStr (char ** x) { if (x && (* x)) printf ("%s ", * x); }
+
+
+void outFn (void * element, Type t) {
 	switch (t) {
 		case _CHAR:
-			out_char ((char *) element);
+			outChar ((char *) element);
 			break;
 		case _INT:
-			out_int ((int *) element);
+			outInt ((int *) element);
 			break;
 		case _LONG:
-			out_long ((long *) element);
+			outLong ((long *) element);
 			break;
 		case _FLOAT:
-			out_float ((float *) element);
+			outFloat ((float *) element);
 			break;
 		case _DOUBLE:
-			out_double ((double *) element);
+			outDouble ((double *) element);
 			break;
-		case _STRING:
-			out_str ((char **) element);
+		case _STR:
+			outStr ((char **) element);
 			break;
 	}
 }
 
+
+void outArrInt (void * arr, int count) {
+	int * xs = (int *) arr;
+	printf ("[");
+	for (int i = 0; i < count; i++) 
+		outFn (xs+i, _INT);
+	printf ("]\n");
+}
+
+
+void outArrStr (void * arr, int count) {
+	char ** strs = (char **) arr;
+	printf ("[");
+	for (int i = 0; i < count; i++) 
+		outFn (strs+i, _STR);
+	printf ("]\n");
+}
 
 
 

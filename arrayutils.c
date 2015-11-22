@@ -6,20 +6,25 @@
  * github.com/mayukh42
  */
 
-void test_array_print () {
+void testArrayPrint () {
 	unsigned n = 5;
 	int * xs = malloc (sizeof (int) * n);
 	for (unsigned i = 0; i < n; i++)
-		xs[i] = i+1;
-	print_arr (&xs, _INT);
+		xs[i] = i+1;	
+	outArrInt (xs, n);
+
+	char * css[] = {"he", "hell", "hello", "helium", "helios"};
+	outArrStr (css, n);
+
+	free (xs);
 }
 
-void run_tests() {
-	test_array_print ();
+void runTests() {
+	testArrayPrint ();
 }
 
 int main() {
-	run_tests();
+	runTests();
 
 	return 0;
 }
