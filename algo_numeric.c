@@ -10,12 +10,12 @@ typedef enum Bool {
 	true
 } Bool;
 
-/** sqrt_nr ()
+/** sqrtNR ()
  * Square Root of a number using Newton-Raphson method
  * x1 = x0 - f(x0)/f'(x0)
  * f(x): x*x - n = 0
  */
-void sqrt_nr (double n, double tolerance) {
+void sqrtNR (double n, double tolerance) {
 	double x0 = n/2.0, x1;
 	int iter = 0;
 	while (true) {
@@ -49,10 +49,10 @@ void minmax (int * xs, int n) {
 	printf ("min = %d, max = %d.\n", mn, mx);
 }
 
-/** binary_search ()
+/** binarySearch ()
  * Classical Binary Search Algorithm: O(lg n)
  */
-int binary_search (int * xs, int lower, int upper, int element) {
+int binarySearch (int * xs, int lower, int upper, int element) {
 	if (lower >= upper || !xs) 
 		return -1;
 
@@ -60,23 +60,23 @@ int binary_search (int * xs, int lower, int upper, int element) {
 	if (element == xs[mid])
 		return mid;
 	else if (element < xs[mid])
-		return binary_search (xs, lower, mid, element);
+		return binarySearch (xs, lower, mid, element);
 	else
-		return binary_search (xs, mid + 1, upper, element);
+		return binarySearch (xs, mid + 1, upper, element);
 }
 
-/** Container for matrix_search results
+/** Container for matrixSearch results
  */
 typedef struct Pair {
 	int x;
 	int y;
 } Pair;
 
-/** binary_search_2d ()
- * binary search helper function for matrix_search
+/** binarySearch2D ()
+ * binary search helper function for matrixSearch
  * assume ret != NULL (we can always check it)
  */
-void binary_search_2d (int ** xss, int lower, int upper, int element, Pair * ret) {
+void binarySearch2D (int ** xss, int lower, int upper, int element, Pair * ret) {
 	ret->x = lower;
 	ret->y = upper;
 	if (lower >= upper || !xss) {
@@ -90,37 +90,37 @@ void binary_search_2d (int ** xss, int lower, int upper, int element, Pair * ret
 		ret->y = mid;
 	}
 	else if (element < xss[mid][mid])
-		binary_search_2d (xss, lower, mid, element, ret);
+		binarySearch2D (xss, lower, mid, element, ret);
 	else
-		binary_search_2d (xss, mid + 1, upper, element, ret);
+		binarySearch2D (xss, mid + 1, upper, element, ret);
 }
 
-/** matrix_search ()
+/** matrixSearch ()
  * Sorted matrix search algorithm. O(lg n) + O(lg n)
  * Given a[i][j] < a[i][j+1] && a[i][j] < a[i+1][j]
  * For simplicity, only square matrices are considered
  * assume container for result has -1
  */
-void matrix_search (int ** xss, int size, int element, Pair * result) {
+void matrixSearch (int ** xss, int size, int element, Pair * result) {
 	if (!xss || size <= 0)
 		return;
 
 	if (element < xss[0][0] || element > xss[size-1][size-1])
 		return;
 
-	binary_search_2d (xss, 0, size, element, result);
+	binarySearch2D (xss, 0, size, element, result);
 
 	if (result->x == result->y)
 		return;
 
 	int row = result->x;
-	int col = binary_search (xss[row], 0, size, element);
+	int col = binarySearch (xss[row], 0, size, element);
 	if (col != -1) {
 		result->x = row, result->y = col;
 		return;
 	}
 	row = result->y;
-	col = binary_search (xss[row], 0, size, element);
+	col = binarySearch (xss[row], 0, size, element);
 	if (col != -1) {
 		result->x = row, result->y = col;
 		return;
@@ -129,10 +129,10 @@ void matrix_search (int ** xss, int size, int element, Pair * result) {
 	result->y = -1;
 }
 
-/** saddleback_search ()
+/** saddlebackSearch ()
  * Saddleback Search algorithm for sorted matrix: O(n)
  */
-void saddleback_search (int ** xss, int size, int element, Pair * result) {
+void saddlebackSearch (int ** xss, int size, int element, Pair * result) {
 	int i = 0, j = size-1;
 	while (element != xss[i][j] && j >= 0 && i < size) {
 		if (element < xss[i][j])
@@ -185,7 +185,30 @@ unsigned * hamming (unsigned n) {
 	return seq;
 }
 
-void test_hamming () {
+void asSumOfSquares (unsigned r) {
+	unsigned x = 0, y = 0;
+	printf ("  x\t  y (r: %d)\n", r);
+	while (x <= r) {
+		if (x*x + y*y == r)
+			printf ("%3u\t%3u\n", x, y);
+		y++;
+		while (y <= r) {
+			if (x*x + y*y == r)
+				printf ("%3u\t%3u\n", x, y);
+			y++;
+		}
+		y = 0;
+		x++;
+	}
+}
+
+void testAsSumOfSquares () {
+	int count = 10;
+	for (int i = 1; i <= count; i++)
+		asSumOfSquares (i);
+}
+
+void testHamming () {
 	unsigned n = 42;
 	unsigned * seq = hamming (n);
 	for (unsigned i = 0; i < n; i++)
@@ -194,7 +217,7 @@ void test_hamming () {
 	free (seq);
 }
 
-void test_matrix_search_algorithms () {
+void testMatrixSearchAlgorithms () {
 	int mn = 1, mx = 45, size = 5;
 	int ** xss = (int **) malloc (sizeof (int *) * size);
 	int elements[] = {1,3,5,7,9,10,12,14,16,18,19,21,23,25,27,28,30,32,34,36,37,39,41,43,45};
@@ -206,12 +229,12 @@ void test_matrix_search_algorithms () {
 	Pair * ret = (Pair *) malloc (sizeof (Pair));
 	ret->x = -1, ret->y = -1;
 	for (int i = mn; i <= mx; i++) {
-		matrix_search (xss, size, i, ret);
+		matrixSearch (xss, size, i, ret);
 		if (ret->x != -1 && ret->y != -1)
 			printf ("matrix] %d: [%d,%d]\n", i, ret->x, ret->y);
 
 		ret->x = -1, ret->y = -1;
-		saddleback_search (xss, size, i, ret);
+		saddlebackSearch (xss, size, i, ret);
 		if (ret->x != size && ret->y != -1)
 			printf ("saddleback] %d: [%d,%d]\n", i, ret->x, ret->y);
 	}
@@ -222,25 +245,30 @@ void test_matrix_search_algorithms () {
 	free (ret);
 }
 
-void test_123 () {	
-	// sqrt_nr (42.0, TOLERANCE);
-
-	// int xs[] = {2,1,4,5,3};
-	// minmax (xs, 5);
-
+void testBinarySearch () {
 	int ys[] = {1,7,13,19,25};	//{2,3,5,7,11,13,17,19,23,29,31,37,41,43,47};
 	int elements[] = {-1,3,6,7,11,22};	//{-1,2,14,19,23,28,29,42,47,61};
 	int upper = 5, found;
 	for (int i = 0; i < 6; i++) {
-		found = binary_search (ys, 0, upper, elements[i]);
+		found = binarySearch (ys, 0, upper, elements[i]);
 		printf ("%d %s in the array.\n", elements[i], found > -1 ? "is" : "is not");
-	}	
+	}
+}
+
+void test123 () {	
+	// sqrtNR (42.0, TOLERANCE);
+
+	// int xs[] = {2,1,4,5,3};
+	// minmax (xs, 5);
+
+	testBinarySearch ();
 }
 
 void run_tests() {
-	// test_123 ();
-	// test_matrix_search_algorithms ();
-	test_hamming ();
+	// test123 ();
+	// testMatrixSearchAlgorithms ();
+	// testHamming ();
+	testAsSumOfSquares ();
 }
 
 int main() {

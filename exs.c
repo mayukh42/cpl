@@ -221,11 +221,9 @@ void test_gcd_double2rational () {
 	int m = 6, n = 9;
 	printf ("gcd of %d and %d = %d\n", m, n, gcd (m, n));
 
-	double2rational (1234.5678);
-	double2rational (0.5223);
-	double2rational (1.125);
-	double2rational (6.116);	// not quite the ouput we want
-	double2rational (42.0);
+	double ds[] = {1234.5678, 0.5223, 1.125, 6.116, 42.0};
+	for (int i = 0; i < 4; i++)
+		double2rational (ds[i]);
 }
 
 /** reverse_num ()
@@ -241,15 +239,15 @@ unsigned reverse_num (unsigned n, unsigned radix) {
 }
 
 /** find_circles_within ()
- * finds all x, y $ x^2 + y^2 < n
+ * finds all x, y $ x^2 + y^2 <= n
  */
 void find_circles_within (unsigned n) {
 	unsigned x = 0, y = 0;
 	printf ("  x\t  y\n");
-	while (x * x + y * y < n) {
+	while (x*x + y*y <= n) {
 		printf ("%3u\t%3u\n", x, y);
 		y++;
-		while (x * x + y * y < n) {
+		while (x*x + y*y <= n) {
 			printf ("%3u\t%3u\n", x, y);
 			y++;
 		}
@@ -336,8 +334,8 @@ void run_tests () {
 	// test_spiral_print_mat ();
 	// test_add_ut ();
 	// test_str_array_diff ();
-	// test_gcd_double2rational ();
-	test_numbers ();
+	test_gcd_double2rational ();
+	// test_numbers ();
 }
 
 int main () {
