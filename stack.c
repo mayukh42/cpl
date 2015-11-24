@@ -13,7 +13,7 @@ void testBasicStack () {
 	for (int i = 0; i < count; i++)
 		push (s, &xs[i]);
 
-	printStack (s);
+	printStack (s, print_Item);
 
 	for (int i = 0; i < count; i++) {
 		int * x = pop (s);
@@ -23,8 +23,26 @@ void testBasicStack () {
 	deleteStack (s);
 }
 
+void testStringStack () {
+	char * strs[] = {"he", "hell", "help", "helios", "helium"};
+	int count = 5;
+	Stack * s = createStack ();
+	for (int i = 0; i < count; i++)
+		push (s, strs[i]);
+
+	printStack (s, print_Item_Str);
+
+	for (int i = 0; i < count; i++) {
+		char * str = pop (s);		
+		printf ("%s %s", str, i == count-1 ? "\n" : "");
+	}
+
+	deleteStack (s);
+}
+
 void runTests() {
-	testBasicStack ();
+	// testBasicStack ();
+	testStringStack ();
 }
 
 int main() {

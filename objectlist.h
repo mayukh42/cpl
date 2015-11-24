@@ -11,6 +11,7 @@
  */
 
 // typedef void * (* wrapper_fn) (void * element);
+typedef void (* of) (void * item);
 
 // item (type: int)
 int * wrap_Item (int * v) {
@@ -25,9 +26,18 @@ void delete_Item (int * item) {
 }
 
 // override for different item type
-void print_Item (int * item) {
-	if (item)
-		printf ("%d ", * item);
+void print_Item (void * item) {
+	if (item) {
+		int * item_int = (int *) item;
+		printf ("%d ", * item_int);
+	}
+}
+
+void print_Item_Str (void * str) {
+	if (str) {
+		char * str_char_ptr = (char *) str;
+		printf ("%s ", str_char_ptr);
+	}
 }
 
 
@@ -69,16 +79,16 @@ void delete_OList (OList * list) {
 	}
 }
 
-void print_Nodes (OList * list) {
+void print_Nodes (OList * list, of outFn) {
 	if (!list)
 		return;
-	print_Item (list->item);
-	print_Nodes (list->next);
+	outFn (list->item);
+	print_Nodes (list->next, outFn);
 }
 
-void print_OList (OList * list) {
+void print_OList (OList * list, of outFn) {
 	printf ("[");
-	print_Nodes (list);
+	print_Nodes (list, outFn);
 	printf ("]\n");
 }
 

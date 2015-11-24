@@ -16,7 +16,7 @@ void test_basic_OList () {
 
 	OList * xs_list = create_OList (items, n);	
 
-	print_OList (xs_list);
+	print_OList (xs_list, print_Item);
 	delete_OList (xs_list); 
 
 	for (int i = 0; i < n; i++)

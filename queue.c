@@ -23,7 +23,7 @@ void test_basic_Queue () {
 		list = list->next;
 	}
 	
-	print_Queue (q);
+	print_Queue (q, print_Item);
 
 	delete_Queue (q);
 	delete_OList (head);

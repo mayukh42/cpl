@@ -81,13 +81,11 @@ void deleteStack (Stack * s) {
 
 
 // for debugging, hence cheating the Stack interface
-void printStack (Stack * s) {
-	printf ("[");
+void printStack (Stack * s, of outFn) {
 	if (s) {
 		printf ("(size %d) ", s->size);
-		print_OList (s->head);
+		print_OList (s->head, outFn);
 	}
-	printf ("]\n");
 }
 
 

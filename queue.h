@@ -75,9 +75,9 @@ void delete_Queue (Queue * q) {
 }
 
 // for debugging, hence cheating the Queue interface
-void print_Queue (Queue * q) {
+void print_Queue (Queue * q, of outFn) {
 	if (q)
-		print_OList (q->head);
+		print_OList (q->head, outFn);
 }
 
 #endif
