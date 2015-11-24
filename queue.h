@@ -3,7 +3,7 @@
 
 #include "objectlist.h"
 
-/** General purpose Queue
+/** General purpose Queue (FIFO)
  * items: void *
  */
 typedef struct Queue {
@@ -21,7 +21,7 @@ Queue * create_Queue () {
 }
 
 /** enqueue ()
- * creates space for element
+ * creates space for node
  */
 void enqueue (Queue * q, void * item) {
 	if (!q || !item)
@@ -45,7 +45,7 @@ void * dequeue (Queue * q) {
 		return NULL;
 
 	OList * node = q->head;
-	void * item = node->item;
+	void * item = node ? node->item : NULL;
 	if (q->size == 1) {
 		q->head = NULL;
 		q->last = NULL;
@@ -74,6 +74,7 @@ void delete_Queue (Queue * q) {
 	}
 }
 
+// for debugging, hence cheating the Queue interface
 void print_Queue (Queue * q) {
 	if (q)
 		print_OList (q->head);
