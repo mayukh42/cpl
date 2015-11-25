@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "stack.h"
+#include "arrayutils.h"
 
 /** author: mayukh
  * github.com/mayukh42
@@ -202,6 +204,70 @@ void asSumOfSquares (unsigned r) {
 	}
 }
 
+
+/** checkCeleb ()
+ * returns i if xs[i][j] = 0, xs[j][i] = 1
+ * or j if xs[i][j] = 1, xs[j][i] = 0
+ */
+int checkCeleb (int ** xs, int i, int j) {
+	if (xs[i][j] && !xs[j][i])
+		return j;
+	else if (!xs[i][j] && xs[i][j])
+		return i;
+	return -1;
+}
+
+
+/** findCelebrity ()
+ * in a graph (given by Adj. Matrix), find vertex such that 
+ * everyone else (i) knows her (xs[i][j] = 1), but she (j) knows none (xs[j][i] = 0)
+ * for all i, j in ixj Adj. Matrix
+ */
+int findCelebrity (int ** relations, int size) {
+	if (!relations || !size || size==1)
+		return -1;
+
+	int * xs = (int *) calloc (sizeof (int), size);
+	Stack * s = createStack ();
+	for (int i = 0; i < size; i++) {
+		xs[i] = i;
+		push (s, xs+i);
+	}
+
+	printStack (s, print_Item);
+	int top = * ((int *) pop (s));
+	while (!isStackEmpty (s)) {
+		int next = * ((int *) pop (s)); 
+		int check = checkCeleb (relations, top, next);
+		if (check > -1)
+			top = check;
+	}
+	free (xs);
+	deleteStack (s);
+
+	return top;
+}
+
+// all tests
+void testCelebrities () {
+	int count = 4, celeb = 2;
+	int ** relations = (int **) calloc (sizeof (int *), count);
+	for (int i = 0; i < count; i++) {
+		relations[i] = (int *) calloc (sizeof (int), count);
+		for (int j = 0; j < count; j++)
+			relations[i][j] = (j == celeb && i != celeb) ? 1 : 0;
+	}
+	for (int i = 0; i < count; i++)
+		outArrInt (relations[i], count);
+
+	celeb = findCelebrity (relations, count);
+	printf ("celebrity: %d\n", celeb);
+
+	for (int i = 0; i < count; i++)
+		free (relations[i]);
+	free (relations);
+}
+
 void testAsSumOfSquares () {
 	int count = 10;
 	for (int i = 1; i <= count; i++)
@@ -268,7 +334,8 @@ void run_tests() {
 	// test123 ();
 	// testMatrixSearchAlgorithms ();
 	// testHamming ();
-	testAsSumOfSquares ();
+	// testAsSumOfSquares ();
+	testCelebrities ();
 }
 
 int main() {

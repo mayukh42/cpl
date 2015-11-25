@@ -1,7 +1,7 @@
 # cpl
 Problems coded in C
 
-1. ht.c: A simple HashTable in C
+1. ht.c: A simple Hashtable in C
 
 2. Cmain.sublime-snippet: A small template for quick-starting a C source code in Sublime Text
 
@@ -41,17 +41,25 @@ Problems coded in C
 
 15. algo_numeric.c: Numerical algorithms
 
-&nbsp;&nbsp;&nbsp;&nbsp;sqrt_nr, minmax, binary_search, matrix_search
+&nbsp;&nbsp;&nbsp;&nbsp;sqrt_nr, minmax, binary_search, matrix_search, asSumOfSquares, findCelebrity
 
 16. arrayutils.c, arrayutils.h: Some array utility functions (WIP)
 
-16. trie.c, trie.h: The Trie data structure
+16. trie.c, trie.h: The Trie data structure, including a suggestions algorithm, that returns top n suggestions for a given prefix.
 
-All programs are valgrind tested for memory leaks.
+17. oht.h, oht.c: Open-addressed Hashtable (general purpose, using objectlist). This is done in a more OOP way (i.e. with function ptrs in struct)
+
+18. stack.h, stack.c: A general purpose Stack, using objectlist
+
+All programs are valgrind-tested for memory leaks.
 
 
 Usage: 
+
 $ git clone https://github.com/mayukh42/cpl.git
-$ cd kr-c
+
+$ cd cpl
+
 $ make
+
 $ valgrind ./[executable]
