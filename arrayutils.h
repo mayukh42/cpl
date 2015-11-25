@@ -12,7 +12,6 @@ typedef enum Type {
 
 typedef void (* outArr) (void * arr, int count);
 
-
 void outInt (int * x) { if (x) printf ("%d ", * x); }
 void outChar (char * x) { if (x) printf ("%c ", * x); }
 void outFloat (float * x) { if (x) printf ("%.2f ", * x); }
@@ -20,7 +19,6 @@ void outUnsigned (unsigned * x) { if (x) printf ("%u ", * x); }
 void outDouble (double * x) { if (x) printf ("%.2f ", * x); }
 void outLong (long * x) { if (x) printf ("%ld ", * x); }
 void outStr (char ** x) { if (x && (* x)) printf ("%s ", * x); }
-
 
 void outFn (void * element, Type t) {
 	switch (t) {
@@ -45,7 +43,6 @@ void outFn (void * element, Type t) {
 	}
 }
 
-
 void outArrInt (void * arr, int count) {
 	int * xs = (int *) arr;
 	printf ("[");
@@ -53,7 +50,6 @@ void outArrInt (void * arr, int count) {
 		outFn (xs+i, _INT);
 	printf ("]\n");
 }
-
 
 void outArrStr (void * arr, int count) {
 	char ** strs = (char **) arr;
@@ -63,6 +59,33 @@ void outArrStr (void * arr, int count) {
 	printf ("]\n");
 }
 
+/** General purpose element
+ * The field 'size' is not actually used atm; kept for future
+ */
+typedef struct Element {
+	Type type;
+	void * content;
+	size_t size;
+} Element;
+
+Element * createElement (Type t, void * item) {
+	Element * e = (Element *) calloc (sizeof (Element), 1);
+	e->type = t;
+	e->content = item;
+	e->size = sizeof (Element);
+	return e;
+}
+
+void deleteElement (Element * e) {
+	free (e);
+}
+
+void outElement (Element * e) {
+	if (e) {
+		outFn (e->content, e->type);
+		printf (" ");
+	}
+}
 
 
 #endif
