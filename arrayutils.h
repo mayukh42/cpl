@@ -20,25 +20,25 @@ void outDouble (double * x) { if (x) printf ("%.2f ", * x); }
 void outLong (long * x) { if (x) printf ("%ld ", * x); }
 void outStr (char ** x) { if (x && (* x)) printf ("%s ", * x); }
 
-void outFn (void * element, Type t) {
+void outFn (void * Object, Type t) {
 	switch (t) {
 		case _CHAR:
-			outChar ((char *) element);
+			outChar ((char *) Object);
 			break;
 		case _INT:
-			outInt ((int *) element);
+			outInt ((int *) Object);
 			break;
 		case _LONG:
-			outLong ((long *) element);
+			outLong ((long *) Object);
 			break;
 		case _FLOAT:
-			outFloat ((float *) element);
+			outFloat ((float *) Object);
 			break;
 		case _DOUBLE:
-			outDouble ((double *) element);
+			outDouble ((double *) Object);
 			break;
 		case _STR:
-			outStr ((char **) element);
+			outStr ((char **) Object);
 			break;
 	}
 }
@@ -59,28 +59,28 @@ void outArrStr (void * arr, int count) {
 	printf ("]\n");
 }
 
-/** General purpose element
+/** General purpose Object
  * The field 'size' is not actually used atm; kept for future
  */
-typedef struct Element {
+typedef struct Object {
 	Type type;
 	void * content;
 	size_t size;
-} Element;
+} Object;
 
-Element * createElement (Type t, void * item) {
-	Element * e = (Element *) calloc (sizeof (Element), 1);
+Object * createObject (Type t, void * item) {
+	Object * e = (Object *) calloc (sizeof (Object), 1);
 	e->type = t;
 	e->content = item;
-	e->size = sizeof (Element);
+	e->size = sizeof (Object);
 	return e;
 }
 
-void deleteElement (Element * e) {
+void deleteObject (Object * e) {
 	free (e);
 }
 
-void outElement (Element * e) {
+void outObject (Object * e) {
 	if (e) {
 		outFn (e->content, e->type);
 		printf (" ");
