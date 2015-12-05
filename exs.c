@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "arrayutils.h"
 
 /** author: mayukh
  * github.com/mayukh42
@@ -18,25 +19,6 @@ typedef enum Bool {
 	false, 
 	true
 } Bool;
-
-/** 2D Matrix Utility functions
- */
-int ** build_mat (int ** xs, int * elems, int r, int c) {
-	xs = (int **) malloc (sizeof (int *) * r);
-	for (int i = 0; i < r; i++) {
-		int * cs = (int *) malloc (sizeof (int) * c);
-		for (int j = i*c; j < (i+1)*c; j++)
-			cs[j%c] = elems[j];
-		xs[i] = cs;
-	}
-	return xs;
-} 
-
-void delete_mat (int ** xs, int r) {
-	for (int i = 0; i < r; i++)
-		free (xs[i]);
-	free (xs);
-}
 
 /** 1 - spiral printing of matrix
  * ex. [1 2 3
@@ -91,11 +73,10 @@ void spiral_print_mat (int ** xs, int r, int c) {
 void test_spiral_print_mat () {
 	int r = 3, c = 4;
 	int elems[] = {1,2,3,4,5,6,7,8,9,10,11,12};
-	int ** xs = NULL;
-	xs = build_mat (xs, elems, r, c);
+	int ** xs = buildMat (elems, r, c);
 
 	spiral_print_mat (xs, r, c);
-	delete_mat (xs, r);	
+	deleteMat (xs, r);	
 }
 
 /** add_ut ()
@@ -123,11 +104,10 @@ int add_ut (int ** xs, int r) {
 void test_add_ut () {
 	int r = 3;
 	int elems[] = {1,2,3,4,5,6,7,8,9};
-	int ** xs = NULL; 
-	xs = build_mat (xs, elems, r, r);
+	int ** xs = buildMat (elems, r, r);
 
 	printf ("sum of upper triangle is %d\n", add_ut (xs, r));
-	delete_mat (xs, r);
+	deleteMat (xs, r);
 }
 
 void print_arr (int * xs, int size) {
@@ -318,6 +298,41 @@ void period (unsigned n) {
 	free (buf);
 }
 
+/** fizzbuzz - naive
+ */
+void fizzbuzz (int n) {
+	for (int i = 1; i <= n; i++) {
+		int m3 = i%3, m5 = i%5;
+		if (!m3 && !m5)
+			printf ("fizzbuzz\n");
+		else if (!m3)
+			printf ("fizz\n");
+		else if (!m5)
+			printf ("buzz\n");
+		else
+			printf ("%d\n", i);
+	}
+}
+
+/** fizzbuzz - w/o modulus
+ */
+void fizzbuzz2 (int n) {
+	int m3 = 3, m5 = 5;
+	for (int i = 1; i <= n; i++) {		
+		if (i!=m3 && i!=m5)
+			printf ("%d", i);
+		if (i==m3) {
+			printf ("fizz");
+			m3 += 3;
+		}
+		if (i==m5) {
+			printf ("buzz");
+			m5 += 5;
+		}
+		printf ("\n");
+	}
+}
+
 void test_numbers () {
 	// unsigned d = 173;
 	// printf ("reverse of %u = %u\n", d, reverse_num (d, 10));
@@ -328,14 +343,17 @@ void test_numbers () {
 	
 	// for (unsigned i = 11; i <= 37; i++)
 	// 	period (i);
+
+	// fizzbuzz (42);
+	fizzbuzz2 (31);
 }
 
 void run_tests () {
 	// test_spiral_print_mat ();
 	// test_add_ut ();
 	// test_str_array_diff ();
-	test_gcd_double2rational ();
-	// test_numbers ();
+	// test_gcd_double2rational ();
+	test_numbers ();
 }
 
 int main () {

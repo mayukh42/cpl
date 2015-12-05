@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "arrayutils.h"
 
 /** author: mayukh
  * github.com/mayukh42
@@ -28,6 +29,7 @@ int longestPlateau (int * xs, int count) {
 	return maxlen;
 }
 
+
 void testPlateau () {
 	int xs[] = {1,2,2,3,3,3,4,5,5,6,6,6,6,7};
 	int count = 14;
@@ -36,7 +38,7 @@ void testPlateau () {
 
 
 void runTests() {
-	testPlateau ();	
+	// testPlateau ();
 }
 
 int main() {
