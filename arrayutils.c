@@ -30,8 +30,13 @@ void testMat () {
 	int size = 4;
 	int elems[] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
 	int ** xs = buildMat (elems, size, size);
-	outArrInt2D (xs, size, size);
+	outMat (xs, size, size);
+
+	int ** ys = buildTriangularMat (size, elems);
+	outTriangularMat (ys, size);
+
 	deleteMat (xs, size);
+	deleteMat (ys, size);
 }
 
 void testArrayPrint () {
@@ -50,10 +55,10 @@ void testArrayPrint () {
 void testRotateMat () {
 	int size = 4;
 	int ** xs = buildMat123 (size, size);
-	outArrInt2D (xs, size, size);
+	outMat (xs, size, size);
 
 	rotateMat (xs, size);
-	outArrInt2D (xs, size, size);
+	outMat (xs, size, size);
 
 	deleteMat (xs, size);
 }
@@ -61,10 +66,10 @@ void testRotateMat () {
 void testRotateMat90c () {
 	int size = 4;
 	int ** xs = buildMat123 (size, size);
-	outArrInt2D (xs, size, size);
+	outMat (xs, size, size);
 
 	int ** ys = rotateMat90c (xs, size);
-	outArrInt2D (ys, size, size);
+	outMat (ys, size, size);
 
 	deleteMat (xs, size);
 	deleteMat (ys, size);
@@ -73,8 +78,8 @@ void testRotateMat90c () {
 void runTests() {
 	// testArrayPrint ();
 	// testGenericArray ();
-	// testMat ();		
-	testRotateMat ();
+	testMat ();		
+	// testRotateMat ();
 	// testRotateMat90c ();
 }
 

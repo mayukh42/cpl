@@ -1,47 +1,7 @@
 #ifndef __ARRAYUTILS_H
 #define __ARRAYUTILS_H
 
-typedef enum Type {
-	_CHAR,
-	_INT,
-	_FLOAT,
-	_DOUBLE,
-	_LONG,
-	_STR
-} Type;
-
-typedef void (* outArr) (void * arr, int count);
-
-void outInt (int * x) { if (x) printf ("%d ", * x); }
-void outChar (char * x) { if (x) printf ("%c ", * x); }
-void outFloat (float * x) { if (x) printf ("%.2f ", * x); }
-void outUnsigned (unsigned * x) { if (x) printf ("%u ", * x); }
-void outDouble (double * x) { if (x) printf ("%.2f ", * x); }
-void outLong (long * x) { if (x) printf ("%ld ", * x); }
-void outStr (char ** x) { if (x && (* x)) printf ("%s ", * x); }
-
-void outFn (void * Object, Type t) {
-	switch (t) {
-		case _CHAR:
-			outChar ((char *) Object);
-			break;
-		case _INT:
-			outInt ((int *) Object);
-			break;
-		case _LONG:
-			outLong ((long *) Object);
-			break;
-		case _FLOAT:
-			outFloat ((float *) Object);
-			break;
-		case _DOUBLE:
-			outDouble ((double *) Object);
-			break;
-		case _STR:
-			outStr ((char **) Object);
-			break;
-	}
-}
+#include "utils.h"
 
 void outArrInt (void * arr, int count) {
 	int * xs = (int *) arr;
@@ -91,6 +51,17 @@ int ** buildMatEmpty (int r, int c) {
 	return xs;
 }
 
+int ** buildTriangularMat (int size, int * elems) {
+	int k = 0;
+	int ** mat = (int **) calloc (sizeof (int *), size);
+	for (int i = 0; i < size; i++) {
+		mat[i] = (int *) calloc (sizeof (int), i+1);
+		for (int j = 0; j < i+1; j++)
+			mat[i][j] = elems[k++];
+	}
+	return mat;
+}
+
 void deleteMat (int ** xs, int r) {
 	for (int i = 0; i < r; i++)
 		free (xs[i]);
@@ -104,9 +75,15 @@ void copyIntMat (int ** src, int ** dst, int size, int r, int c) {
 	}
 }
 
-void outArrInt2D (int ** xs, int r, int c) {
+void outMat (int ** xs, int r, int c) {
 	for (int i = 0; i < r; i++)
 		outArrInt (xs[i], c);
+	printf ("\n");
+}
+
+void outTriangularMat (int ** xs, int size) {
+	for (int i = 0; i < size; i++)
+		outArrInt (xs[i], i+1);
 	printf ("\n");
 }
 
@@ -139,35 +116,5 @@ int ** rotateMat90c (int ** src, int size) {
 	}
 	return dst;
 }
-
-
-/** General purpose Object
- * The field 'size' is not actually used atm; kept for future
- */
-typedef struct Object {
-	Type type;
-	void * content;
-	size_t size;
-} Object;
-
-Object * createObject (Type t, void * item) {
-	Object * e = (Object *) calloc (sizeof (Object), 1);
-	e->type = t;
-	e->content = item;
-	e->size = sizeof (Object);
-	return e;
-}
-
-void deleteObject (Object * e) {
-	free (e);
-}
-
-void outObject (Object * e) {
-	if (e) {
-		outFn (e->content, e->type);
-		printf (" ");
-	}
-}
-
 
 #endif
