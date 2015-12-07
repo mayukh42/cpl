@@ -6,8 +6,6 @@
  * github.com/mayukh42
  */
 
-int num_swaps = 0;
-
 void testGenericArray () {
 	int count = 4;
 	Object ** es = (Object **) calloc (sizeof (Object *), count);

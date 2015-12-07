@@ -30,6 +30,15 @@ int longestPlateau (int * xs, int count) {
 }
 
 
+int missingElement (int * xs, int n) {
+	int gold_sum = (n+1) * (n+2)/2;
+	int actual_sum = 0;
+	for (int i = 0; i < n; i++)
+		actual_sum += xs[i];
+	return gold_sum - actual_sum;
+}
+
+
 void testPlateau () {
 	int xs[] = {1,2,2,3,3,3,4,5,5,6,6,6,6,7};
 	int count = 14;
@@ -37,8 +46,24 @@ void testPlateau () {
 }
 
 
+void testMissingElement () {
+	int size1 = 10, size2 = 20;
+	int * elems = (int *) calloc (sizeof (int), size1 + size2);
+	int * elems1 = build123Array (size1);
+	int * elems2 = build123ArrayBaseVal (size2, size1+1);
+	memcpy (elems, elems1, sizeof (int) * size1);
+	memcpy (elems + size1, elems2, sizeof (int) * size2);
+	outArrInt (elems, size1+size2); 
+
+	printf ("missing element in array = %d\n", missingElement (elems, size1+size2));
+
+	free (elems); free (elems1); free (elems2);
+}
+
+
 void runTests() {
 	// testPlateau ();
+	testMissingElement ();
 }
 
 int main() {

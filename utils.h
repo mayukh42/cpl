@@ -2,9 +2,9 @@
 #define __UTILS_H
 
 #include <string.h>
+#include "globals.h"
 
 #define SWAP(T, a, b) {T tmp = a; a = b; b = tmp; }
-extern int num_swaps;
 
 typedef enum Type {
 	_CHAR,

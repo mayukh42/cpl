@@ -40,6 +40,13 @@ int * build123Array (int size) {
 	return elems;
 }
 
+int * build123ArrayBaseVal (int size, int base_val) {
+	int * elems = (int *) calloc (sizeof (int), size);
+	for (int i = 0; i < size; i++)
+		elems[i] = base_val+i+1;
+	return elems;
+}
+
 /** outArrInt ()
  * output an int array
  */
