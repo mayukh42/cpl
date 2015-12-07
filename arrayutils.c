@@ -6,6 +6,8 @@
  * github.com/mayukh42
  */
 
+int num_swaps = 0;
+
 void testGenericArray () {
 	int count = 4;
 	Object ** es = (Object **) calloc (sizeof (Object *), count);
@@ -75,12 +77,29 @@ void testRotateMat90c () {
 	deleteMat (ys, size);
 }
 
+void testQuickSort () {
+	int size = 32;
+	int * elems = buildRandomIntArray (size, 100);
+	outArrInt (elems, size);
+
+	quicksort (elems, size);
+	outArrInt (elems, size);
+	printf ("number of swaps: %d\n", num_swaps);
+
+	quicksort (elems, size);
+	outArrInt (elems, size); 
+	printf ("number of swaps: %d\n", num_swaps);
+
+	free (elems);
+}
+
 void runTests() {
 	// testArrayPrint ();
 	// testGenericArray ();
-	testMat ();		
+	// testMat ();		
 	// testRotateMat ();
 	// testRotateMat90c ();
+	testQuickSort (); 
 }
 
 int main() {

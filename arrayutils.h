@@ -3,6 +3,46 @@
 
 #include "utils.h"
 
+typedef int (* cmpFn) (int x, int y);
+
+int cmpIntAsc (int x, int y) {
+	return x <= y;
+}
+
+int cmpIntDsc (int x, int y) {
+	return x >= y;
+}
+
+/** buildRandomIntArray ()
+ * create an int array with randomized elements
+ * for general testing
+ */
+int * buildRandomIntArray (int size, int max_val) {
+	int * elems = (int *) calloc (sizeof (int), size);
+	for (int i = 0; i < size; i++)
+		elems[i] = rand () % max_val;
+	return elems;
+}
+
+int * buildFillIntArray (int size, int val) {
+	int * elems = (int *) calloc (sizeof (int), size);
+	if (val) { 
+		for (int i = 0; i < size; i++)
+			elems[i] = val;
+	}
+	return elems;
+}
+
+int * build123Array (int size) {
+	int * elems = (int *) calloc (sizeof (int), size);
+	for (int i = 0; i < size; i++)
+		elems[i] = i+1;
+	return elems;
+}
+
+/** outArrInt ()
+ * output an int array
+ */
 void outArrInt (void * arr, int count) {
 	int * xs = (int *) arr;
 	printf ("[");
@@ -11,6 +51,9 @@ void outArrInt (void * arr, int count) {
 	printf ("]\n");
 }
 
+/** outArrStr ()
+ * output a string array
+ */
 void outArrStr (void * arr, int count) {
 	char ** strs = (char **) arr;
 	printf ("[");
@@ -116,5 +159,72 @@ int ** rotateMat90c (int ** src, int size) {
 	}
 	return dst;
 }
+
+
+/** partitionQS ()
+ * CAR Hoare's partition scheme for Quicksort 
+ */
+int partitionQS (int * xs, int lo, int hi) {
+	if (lo >= hi)
+		return lo;
+
+	int p_idx = rand () % (hi+1-lo);
+	if (xs[p_idx] != xs[lo])
+		swapInt (xs+lo+p_idx, xs+lo);
+
+	int p = xs[lo], i = lo+1, j = hi;
+	while (i <= j) {
+		while (i <= hi && xs[i] <= p)	// first check to bypass bad ptr errors
+			i++;
+		while (j >= lo && xs[j] > p) 
+			j--;
+		if (i < j)
+			swapInt (xs+i, xs+j);
+	}
+	if (xs[lo] != xs[j])
+		swapInt (xs+lo, xs+j);	// put partition in its place
+	return j;
+}
+
+
+/** quicksort_rec ()
+ * classic quicksort algorithm, O(n.lgn) expected case
+ * qsort is already taken
+ */
+void quicksort_rec (int * xs, int lo, int hi) {
+	if (lo >= hi)
+		return;
+
+	int p = partitionQS (xs, lo, hi);
+	quicksort_rec (xs, lo, p-1);
+	quicksort_rec (xs, p+1, hi);
+}
+
+
+/** isSorted ()
+ * an OPT for quicksort
+ */
+int isSorted (int * xs, int size, cmpFn cf) {
+	int sorted = 1;
+	for (int i = 0; i < size-1; i++) {
+		if (!cf (xs[i], xs[i+1])) {
+			sorted = 0;
+			break;
+		}
+	}
+	return sorted;
+} 
+
+
+/** quicksort ()
+ * quicksort API
+ */
+void quicksort (int * xs, int size) {
+	int sorted = isSorted (xs, size, cmpIntAsc);
+	num_swaps = 0;
+	if (!sorted) 
+		quicksort_rec (xs, 0, size-1);
+}
+
 
 #endif

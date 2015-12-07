@@ -1,7 +1,10 @@
 #ifndef __UTILS_H
 #define __UTILS_H
 
+#include <string.h>
+
 #define SWAP(T, a, b) {T tmp = a; a = b; b = tmp; }
+extern int num_swaps;
 
 typedef enum Type {
 	_CHAR,
@@ -49,11 +52,25 @@ void outFn (void * Object, Type t) {
  * it does not make sense to swap 2 ptrs of different types
  * hence swap should be a client function, like comparator
  * for a macro version, see SWAP
+ * for generic version, see swap ()
  */
 void swapInt (int * p1, int * p2) {
 	int tmp = * p1;		// the delcaration is why we need type
 	* p1 = * p2;
 	* p2 = tmp;
+	num_swaps++;
+}
+
+
+/** swap ()
+ * generic swap hack
+ */
+void swap (void * p1, void * p2, int size) {
+	void * tmp = calloc (sizeof (char), size);
+	memcpy (tmp, p1, size);
+	memcpy (p1, p2, size);
+	memcpy (p2, tmp, size);
+	free (tmp);
 }
 
 
