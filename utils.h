@@ -55,10 +55,12 @@ void outFn (void * Object, Type t) {
  * for generic version, see swap ()
  */
 void swapInt (int * p1, int * p2) {
-	int tmp = * p1;		// the delcaration is why we need type
-	* p1 = * p2;
-	* p2 = tmp;
-	num_swaps++;
+	if (* p1 != * p2) {
+		int tmp = * p1;		// the delcaration is why we need type
+		* p1 = * p2;
+		* p2 = tmp;
+		num_swaps++;
+	}
 }
 
 

@@ -176,8 +176,7 @@ int partitionQS (int * xs, int lo, int hi) {
 		return lo;
 
 	int p_idx = rand () % (hi+1-lo);
-	if (xs[p_idx] != xs[lo])
-		swapInt (xs+lo+p_idx, xs+lo);
+	swapInt (xs+lo+p_idx, xs+lo);
 
 	int p = xs[lo], i = lo+1, j = hi;
 	while (i <= j) {
@@ -188,8 +187,7 @@ int partitionQS (int * xs, int lo, int hi) {
 		if (i < j)
 			swapInt (xs+i, xs+j);
 	}
-	if (xs[lo] != xs[j])
-		swapInt (xs+lo, xs+j);	// put partition in its place
+	swapInt (xs+lo, xs+j);	// put partition in its place
 	return j;
 }
 

@@ -31,11 +31,34 @@ int longestPlateau (int * xs, int count) {
 
 
 int missingElement (int * xs, int n) {
-	int gold_sum = (n+1) * (n+2)/2;
-	int actual_sum = 0;
+	int sum = (n+1) * (n+2)/2;
 	for (int i = 0; i < n; i++)
-		actual_sum += xs[i];
-	return gold_sum - actual_sum;
+		sum -= xs[i];
+	return sum;
+}
+
+
+/** inplaceReverse ()
+ * reverses an array in place
+ */
+void inplaceReverse (int * xs, int size) {
+	if (!xs || !size)
+		return;
+
+	for (int i = 0; i < size>>1; i++)
+		swapInt (xs+i, xs+size-1-i);
+}
+
+
+/** findSingleElement ()
+ * returns the only element occuring in an array once, 
+ * among all others that occur twice.
+ */
+int findSingleElement (int * xs, int size) {
+	int single_elem = 0;
+	for (int i = 0; i < size; i++)
+		single_elem ^= xs[i];
+	return single_elem;
 }
 
 
@@ -61,9 +84,28 @@ void testMissingElement () {
 }
 
 
+void testInplaceReverse () {
+	int size = 11;
+	int * elems = build123Array (size);
+	outArrInt (elems, size);
+	inplaceReverse (elems, size);
+	outArrInt (elems, size);
+	free (elems);
+}
+
+
+void testFindSingleElement () {
+	int size = 15;
+	int elems[] = {1,2,1,2,3,3,4,5,5,4,6,7,6,8,7};
+	printf ("single element in array = %d\n", findSingleElement (elems, size));
+}
+
+
 void runTests() {
 	// testPlateau ();
-	testMissingElement ();
+	// testMissingElement ();
+	// testInplaceReverse ();
+	testFindSingleElement ();
 }
 
 int main() {
