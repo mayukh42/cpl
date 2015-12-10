@@ -84,14 +84,18 @@ int trailingZerosInFact (int n) {
 /** primeGeneratr ()
  * generate primes up to given number
  * Sieve of Eratosthenes + Memoization
- * # primes approzimated using Prime Number Theorem (PNT)
+ * # primes approximated using Prime Number Theorem (PNT)
  */
-int primeGeneratr (int upper, int num) {
-	if (upper < 2)
+int primeGeneratr (int n) {
+	if (n < 2)
 		return 0;
-	int * primes = (int *) calloc (sizeof (int), num);
+
+	int pnt_n = (int) (n * 1.3 / log (n));
+	printf ("n = %d. PNT n = %d\n", n, pnt_n);
+	int * primes = (int *) calloc (sizeof (int), pnt_n);
+
 	int last_idx = 0; primes[last_idx++] = 2;
-	for (int i = 3; i <= upper; i++) {
+	for (int i = 3; i <= n; i++) {
 		int is_prime = 1;
 		for (int j = 0; j < last_idx; j++) {
 			if (!(i % primes[j])) {
@@ -99,7 +103,7 @@ int primeGeneratr (int upper, int num) {
 				break;
 			}
 		}
-		if (last_idx == num)
+		if (last_idx == pnt_n)
 			break;
 		if (is_prime)
 			primes[last_idx++] = i;
@@ -107,6 +111,46 @@ int primeGeneratr (int upper, int num) {
 	outArrInt (primes, last_idx);
 	free (primes);
 	return last_idx;
+}
+
+
+/** numToDigits () 
+ * convert a number to digit array
+ */
+int * numToDigits (long n) {
+	int size = (int) (1.0 + log10 (n * 1.0));
+	int * xs = (int *) calloc (sizeof (int), size);
+	int i = 0;
+	while (n > 0 && i < size) {
+		int r = n % 10;
+		// printf ("size = %d, r = %d\n", size, r);
+		xs[size-1-i] = r;
+		n = (n - r) / 10;
+		i++;
+	}
+	return xs;
+}
+
+
+/** palin ()
+ * returns the next palindrome higher than given number
+ * takes the number as an array of digits
+ * extremely subtle cases: 6999 and the like
+ */
+void palin (int * xs, int lo, int hi, int carry) {
+	if (lo > hi)
+		return;
+
+	xs[lo] = (xs[lo] + carry) % 10;
+	if (xs[hi] > xs[lo]) {
+		xs[hi-1] = (xs[hi-1] + 1) % 10;
+		if (!xs[hi-1]) {
+			carry = 1;
+			xs[lo] = (xs[lo] + carry) % 10;
+		}
+	}
+	xs[hi] = xs[lo];
+	palin (xs, lo+1, hi-1, carry);
 }
 
 
@@ -160,13 +204,28 @@ void testTrailingZerosInFact () {
 
 
 void testPrimality () {
-	int ns[] = {10,100,500,1000,2000,10000};
-	int size = 6;
+	int ns[] = {10,100,500,1000,2000,10000,100000};
+	int size = 7;
 	for (int i = 0; i < size; i++) {		
-		int pnt_n = (int) (ns[i] * 1.3 / log (ns[i]));
-		printf ("n = %d. PNT num = %d\n", ns[i], pnt_n);
-		int last_idx = primeGeneratr (ns[i], pnt_n);
+		int last_idx = primeGeneratr (ns[i]);
 		printf ("# primes = %d\n\n", last_idx);
+	}
+}
+
+
+void testPalin () {
+	int test_cases = 8;
+	int sizes[] = {1, 2, 3, 4, 5, 8, 13, 18};
+	long ns[] = {8, 12, 113, 4999, 69999, 22833822, 2053320533443, 100000000000000002L};
+	for (int i = 0; i < test_cases; i++) {		
+		int * xs = numToDigits (ns[i]);
+		printf ("%ld: \n", ns[i]);
+		outArrInt (xs, sizes[i]); 
+
+		palin (xs, 0, sizes[i]-1, 0);
+		outArrInt (xs, sizes[i]);
+		printf ("\n");
+		free (xs);
 	}
 }
 
@@ -177,7 +236,8 @@ void runTests() {
 	// testInplaceReverse ();
 	// testFindSingleElement ();
 	// testTrailingZerosInFact ();
-	testPrimality ();
+	// testPrimality ();
+	testPalin ();
 }
 
 int main() {
