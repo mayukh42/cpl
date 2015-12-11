@@ -2,6 +2,7 @@
 #define __UTILS_H
 
 #include <string.h>
+#include <math.h>
 #include "globals.h"
 
 #define SWAP(T, a, b) {T tmp = a; a = b; b = tmp; }
@@ -73,6 +74,25 @@ void swap (void * p1, void * p2, int size) {
 	memcpy (p1, p2, size);
 	memcpy (p2, tmp, size);
 	free (tmp);
+}
+
+
+/** numToDigits () 
+ * convert a number to digit array
+ * digits must be unsigned, else makes no sense
+ */
+unsigned * numToDigits (long n) {
+	int size = !n ? 1 : (int) (1.0 + log10 (n * 1.0));
+	unsigned * xs = (unsigned *) calloc (sizeof (unsigned), size);
+	int i = 0;
+	while (n > 0 && i < size) {
+		int r = n % 10;
+		// printf ("size = %d, r = %d\n", size, r);
+		xs[size-1-i] = r;
+		n = (n - r) / 10;
+		i++;
+	}
+	return xs;
 }
 
 

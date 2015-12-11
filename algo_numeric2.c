@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include "arrayutils.h"
 
 #define MAX_ELEMENTS 128
@@ -114,30 +113,12 @@ int primeGeneratr (int n) {
 }
 
 
-/** numToDigits () 
- * convert a number to digit array
- */
-int * numToDigits (long n) {
-	int size = (int) (1.0 + log10 (n * 1.0));
-	int * xs = (int *) calloc (sizeof (int), size);
-	int i = 0;
-	while (n > 0 && i < size) {
-		int r = n % 10;
-		// printf ("size = %d, r = %d\n", size, r);
-		xs[size-1-i] = r;
-		n = (n - r) / 10;
-		i++;
-	}
-	return xs;
-}
-
-
 /** palin ()
  * returns the next palindrome higher than given number
  * takes the number as an array of digits
  * extremely subtle cases: 6999 and the like
  */
-void palin (int * xs, int lo, int hi, int carry) {
+void palin (unsigned * xs, int lo, int hi, int carry) {
 	if (lo > hi)
 		return;
 
@@ -218,7 +199,7 @@ void testPalin () {
 	int sizes[] = {1, 2, 3, 4, 5, 8, 13, 18};
 	long ns[] = {8, 12, 113, 4999, 69999, 22833822, 2053320533443, 100000000000000002L};
 	for (int i = 0; i < test_cases; i++) {		
-		int * xs = numToDigits (ns[i]);
+		unsigned * xs = numToDigits (ns[i]);
 		printf ("%ld: \n", ns[i]);
 		outArrInt (xs, sizes[i]); 
 
