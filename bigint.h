@@ -12,15 +12,25 @@ typedef struct BigInt {
 	int sign;
 } BigInt;
 
+/** Binary functions 
+ */
+typedef BigInt * (* bigInt_BinaryFn) (BigInt * larger, BigInt * smaller);
+typedef int (* bigInt_CmpFn) (BigInt * larger, BigInt * smaller);
 
 BigInt * BigInt_create (long n) {
 	BigInt * bi = (BigInt *) calloc (sizeof (BigInt), 1);
-	if (n < 0) {
+	if (n < 0)
 		bi->sign = 1;
-		n *= -1;
-	}
 	bi->digits = numToDigits (n);
 	bi->size = !n ? 1 : (int) (1.0 + log10 (n * 1.0));
+	return bi;
+}
+
+
+BigInt * b_empty (int n) {
+	BigInt * bi = (BigInt *) calloc (sizeof (BigInt), 1);
+	bi->digits = (unsigned *) calloc (sizeof (unsigned), n);
+	bi->size = n;
 	return bi;
 }
 
@@ -33,7 +43,7 @@ void BigInt_delete (BigInt * bi) {
 }
 
 
-void BigInt_print (BigInt * b) {
+void BigInt_print (const BigInt * b) {
 	if (b) {
 		printf ("%s", b->sign ? "-" : " ");
 		for (int i = 0; i < b->size; i++)
@@ -42,29 +52,93 @@ void BigInt_print (BigInt * b) {
 }
 
 
-BigInt * BigInt_copyPart (BigInt * b, int from) {
+/** b_copyPart ()
+ * copies digits from a given index onto a new BigInt
+ */
+BigInt * b_copyPart (const BigInt * b, int from) {
 	if (!b || from >= b->size)
 		return NULL;
 
 	int size = b->size - from;
-	BigInt * b1 = (BigInt *) calloc (sizeof (BigInt), 1);
-	b1->digits = (unsigned *) calloc (sizeof (unsigned), size);
-	memcpy (b1->digits, b->digits+from, sizeof (unsigned) * size);
-	b1->sign = b->sign;
-	b1->size = size;
-	return b1;
+	BigInt * bi = b_empty (size);
+	memcpy (bi->digits, b->digits+from, sizeof (unsigned) * size);
+	bi->sign = b->sign;
+	bi->size = size;
+	return bi;
 }
 
 
-BigInt * addHelper (BigInt * b1, BigInt * b2) {
-	int size = b1->size;
-	BigInt * b3 = (BigInt *) calloc (sizeof (BigInt), 1);
-	b3->digits = (unsigned *) calloc (sizeof (unsigned), size);
-	b3->size = size;
+/** BigInt_copy ()
+ * copies the given BigInt into a new BigInt
+ */
+BigInt * BigInt_copy (const BigInt * b) {
+	if (!b)
+		return NULL;
+	return b_copyPart (b, 0);
+}
+
+
+BigInt * b_trim (BigInt * b) {
+	if (!b)
+		return NULL;
+
+	if (b->size == 1)
+		return b;
+
+	int msd = 0;
+	for (int i = 0; i < b->size; i++) {
+		if (b->digits[i])
+			break;
+		msd++;
+	}
+	if (msd && msd != b->size) {
+		BigInt * bi = b_copyPart (b, msd);
+		BigInt_delete (b);
+		b = bi;		
+	}
+	else if (msd == b->size) {
+		BigInt_delete (b);
+		b = BigInt_create (0L);
+	}
+	return b;
+}
+
+
+int BigInt_absCompare (const BigInt * larger, const BigInt * smaller) {
+	int cmp = 0;
+	if (larger->size > smaller->size) cmp = 1;
+	else if (larger->size < smaller->size) cmp = -1;
+	else {
+		for (int i = 0; i < larger->size; i++) {
+			if (larger->digits[i] > smaller->digits[i]) {
+				cmp = 1;
+				break;
+			}
+			else if (larger->digits[i] < smaller->digits[i]) {
+				cmp = -1;
+				break;
+			}
+		}
+	}
+	return cmp;
+}
+
+
+int BigInt_compare (BigInt * larger, BigInt * smaller) {
+	int cmp = BigInt_absCompare (larger, smaller);
+	if (cmp == 1 && larger->sign) cmp *= -1;
+	else if (cmp == -1 && smaller->sign) cmp *= -1;
+	return cmp;
+}
+
+
+BigInt * b_addHelper (const BigInt * larger, const BigInt * smaller) {
+	int size = larger->size;
+	BigInt * b3 = b_empty (size);
 	int carry = 0, j, sum = 0;
-	for (int i = 0; i < b2->size; i++) {
-		int k = b2->size-1-i; j = b1->size-1-i;
-		sum = carry + b1->digits[j] + b2->digits[k];
+	for (int i = 0; i < smaller->size; i++) {
+		int k = smaller->size-1-i; j = larger->size-1-i;
+		sum = carry + larger->digits[j] + smaller->digits[k];
 		if (sum > 9) {
 			sum -= 10;
 			carry = 1;
@@ -75,7 +149,7 @@ BigInt * addHelper (BigInt * b1, BigInt * b2) {
 	}
 	j--;
 	for (; j >= 0; j--) {
-		sum = carry + b1->digits[j];
+		sum = carry + larger->digits[j];
 		if (sum > 9) {
 			sum -= 10;
 			carry = 1;
@@ -96,65 +170,13 @@ BigInt * addHelper (BigInt * b1, BigInt * b2) {
 }
 
 
-BigInt * BigInt_trim (BigInt * b) {
-	if (!b)
-		return NULL;
-
-	if (b->size == 1)
-		return b;
-
-	int msd = 0;
-	for (int i = 0; i < b->size; i++) {
-		if (b->digits[i])
-			break;
-		msd++;
-	}
-	if (msd) {
-		BigInt * b1 = BigInt_copyPart (b, msd);
-		BigInt_delete (b);
-		b = b1;		
-	}
-	return b;
-}
-
-
-int BigInt_absCompare (BigInt * b1, BigInt * b2) {
-	int cmp = 0;
-	if (b1->size > b2->size) cmp = 1;
-	else if (b1->size < b2->size) cmp = -1;
-	else {
-		for (int i = 0; i < b1->size; i++) {
-			if (b1->digits[i] > b2->digits[i]) {
-				cmp = 1;
-				break;
-			}
-			else if (b1->digits[i] < b2->digits[i]) {
-				cmp = -1;
-				break;
-			}
-		}
-	}
-	return cmp;
-}
-
-
-int BigInt_compare (BigInt * b1, BigInt * b2) {
-	int cmp = BigInt_absCompare (b1, b2);
-	if (cmp == 1 && b1->sign) cmp *= -1;
-	else if (cmp == -1 && b2->sign) cmp *= -1;
-	return cmp;
-}
-
-
-BigInt * subtractHelper (BigInt * b1, BigInt * b2) {
-	int size = b1->size;
-	BigInt * b3 = (BigInt *) calloc (sizeof (BigInt), 1);
-	b3->digits = (unsigned *) calloc (sizeof (unsigned), size);
-	b3->size = size;
+BigInt * b_subtractHelper (const BigInt * larger, const BigInt * smaller) {
+	int size = larger->size;
+	BigInt * b3 = b_empty (size);
 	int carry = 0, j, a, b;
-	for (int i = 0; i < b2->size; i++) {
-		int k = b2->size-1-i; j = b1->size-1-i;
-		a = b1->digits[j]; b = b2->digits[k] + carry;
+	for (int i = 0; i < smaller->size; i++) {
+		int k = smaller->size-1-i; j = larger->size-1-i;
+		a = larger->digits[j]; b = smaller->digits[k] + carry;
 		if (a < b) {
 			a += 10;
 			carry = 1;
@@ -167,7 +189,7 @@ BigInt * subtractHelper (BigInt * b1, BigInt * b2) {
 	j--;
 	if (carry) {
 		while (j >= 0) {
-			a = b1->digits[j]; b = carry;
+			a = larger->digits[j]; b = carry;
 			if (a < b) {
 				a += 10;
 				carry = 1;
@@ -182,42 +204,114 @@ BigInt * subtractHelper (BigInt * b1, BigInt * b2) {
 }
 
 
-BigInt * BigInt_add (BigInt * b1, BigInt * b2) {	
-	if (!b1 || !b2) return NULL;
+BigInt * BigInt_add (const BigInt * larger, const BigInt * smaller) {	
+	if (!larger || !smaller) return NULL;
 
-	if (b1->size >= b2->size)
-		return addHelper (b1, b2);
-	else
-		return addHelper (b2, b1);
-}
-
-
-BigInt * BigInt_subtract (BigInt * b1, BigInt * b2) {
-	if (!b1 || !b2) return NULL;
-
-	int cmp = BigInt_absCompare (b1, b2);
+	int cmp = BigInt_absCompare (larger, smaller);
 	BigInt * b3 = NULL;
-	if (!cmp && b1->sign == b2->sign)
+	if (!cmp && larger->sign != smaller->sign)
 		b3 = BigInt_create (0L);
-	else if (!b1->sign && b2->sign)
-		b3 = BigInt_add (b1, b2);
-	else if (b1->sign && !b2->sign) {
-		b3 = BigInt_add (b2, b1);
+	else if (!larger->sign && smaller->sign) 
+		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+	else if (larger->sign && !smaller->sign) {
+		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
 		b3->sign = 1;
 	}
-	else if (b1->sign && b2->sign) {
-		b3 = cmp == -1 ? subtractHelper (b2, b1) : subtractHelper (b1, b2);
-		b3->sign = cmp == -1 ? 0 : 1;
+	else if (larger->sign && smaller->sign) {
+		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3->sign = 1;
 	}
-	else {
-		b3 = cmp == -1 ? subtractHelper (b2, b1) : subtractHelper (b1, b2);
-		b3->sign = cmp == -1 ? 1 : 0;
-	}
-	return BigInt_trim (b3);
+	else 
+		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+	return b_trim (b3);
 }
 
 
-int toInt3 (BigInt * b) {
+BigInt * BigInt_subtract (const BigInt * larger, const BigInt * smaller) {
+	if (!larger || !smaller) return NULL;
+
+	int cmp = BigInt_absCompare (larger, smaller);
+	BigInt * b3 = NULL;
+	if (!cmp && larger->sign == smaller->sign)
+		b3 = BigInt_create (0L);
+	else if (!larger->sign && smaller->sign) 
+		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+	else if (larger->sign && !smaller->sign) {
+		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3->sign = 1;
+	}
+	else if (larger->sign && smaller->sign) {
+		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+		b3->sign = 1;
+	}
+	else 
+		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+	return b_trim (b3);
+}
+
+
+BigInt * b_elementWiseProduct (const BigInt * b, long n) {
+	if (!b)
+		return NULL;
+	if (!n)
+		return BigInt_create (0L);
+	if (n == 1)
+		return BigInt_copy (b);
+
+	int i = 0, carry, size = b->size+1;
+	BigInt * bi = b_empty (size);
+	for (i = 0; i < size-1; i++) {
+		int p = b->digits[size-2-i] * n + carry;
+		if (p > 9) {
+			carry = p / 10;
+			p %= 10;
+		}
+		else
+			carry = 0;
+		bi->digits[size-1-i] = p;
+	}
+	if (carry) {
+		if (i < 0)
+			bi->digits[0] = carry;
+		else
+			bi->digits[size-1-i] = carry;
+	}
+	if (n < 0)
+		bi->sign = 1;	
+
+	bi = b_trim (bi);
+	return bi;
+}
+
+
+BigInt * b_productHelperNaive (const BigInt * larger, const BigInt * smaller) {
+	BigInt * p = BigInt_create (0L);
+	for (int i = 0; i < smaller->size; i++) {
+		int idx = smaller->size-1-i;		
+		long multiplier = smaller->digits[idx] * (long) pow (10.0, i*1.0);
+		printf ("smaller[%d] = %u, multiplier = %ld\n", idx, smaller->digits[idx], multiplier);
+		BigInt * ewp = b_elementWiseProduct (larger, multiplier);
+		BigInt_print (ewp); printf ("\n"); 
+		BigInt * row = BigInt_add (ewp, p);
+		BigInt_print (p); printf ("\n"); BigInt_print (row); printf ("\n");
+		BigInt_delete (ewp); BigInt_delete (p);
+		p = row;
+	}
+	if (larger->sign != smaller->sign)
+		p->sign = 1;
+	return b_trim (p);
+}
+
+
+BigInt * BigInt_product (BigInt * larger, BigInt * smaller) {
+	int cmp = BigInt_absCompare (larger, smaller);
+	if (cmp == -1)
+		return b_productHelperNaive (smaller, larger);
+	return b_productHelperNaive (larger, smaller);
+}
+
+
+int b_toInt3 (BigInt * b) {
 	if (!b || b->size > 4)
 		return -1;
 	int n = 0;
