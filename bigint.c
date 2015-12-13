@@ -65,23 +65,38 @@ void testBinaryFn (bigInt_BinaryFn bFn) {
 	BigInt_delete (b3np); BigInt_delete (b3nn);
 }
 
-void testElementWiseProduct () {
-	long n1 = 42L, n2 = 10L;
-	BigInt * b1 = BigInt_create (n1); 
-	BigInt * p1 = b_elementWiseProduct (b1, n1); 
-	BigInt * p2 = b_elementWiseProduct (b1, n2);
-	BigInt_print (b1); printf (" b1\n");  
-	BigInt_print (p1); printf (" p1\n");
-	BigInt_print (p2); printf (" p2\n"); 
+void testMultiplyByNumber () { 
+	long n = 42L;
+	BigInt * b = BigInt_create (n); 
+	BigInt_print (b); printf (" b\n");  
+	// multiplyByDigit
+	for (int i = 0; i < 10; i++) {
+		BigInt * p = b_multiplyByDigit (b, i);
+		BigInt_print (p); printf (" p, x%d\n", i); 
+		BigInt_delete (p); 
+	}
+	// leftShift 
+	for (int i = 0; i < 10; i++) {
+		BigInt * p = b_leftShift (b, i);
+		BigInt_print (p); printf (" p, x%d\n", i); 
+		BigInt_delete (p);   
+	}
+	// multiplyByNumber
+	// long xs[] = {2,25,300,420,1024};
+	// for (int i = 0; i < 5; i++) {
+	// 	BigInt * p = b_multiplyByNumber (b, xs[i]);
+	// 	BigInt_print (p); printf (" p, x%ld\n", xs[i]); 
+	// 	BigInt_delete (p);   
+	// }
 
-	BigInt_delete (b1); BigInt_delete (p1); BigInt_delete (p2); 
+	BigInt_delete (b); 
 }
 
 void runTests() {
 	// testBasicBigInt ();
 	// testBinaryFn (BigInt_add);
 	// testBinaryFn (BigInt_subtract); 
-	testElementWiseProduct ();
+	testMultiplyByNumber ();
 	// testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);

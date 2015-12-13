@@ -28,17 +28,17 @@ BigInt * BigInt_create (long n) {
 
 
 BigInt * b_empty (int n) {
-	BigInt * bi = (BigInt *) calloc (sizeof (BigInt), 1);
-	bi->digits = (unsigned *) calloc (sizeof (unsigned), n);
-	bi->size = n;
-	return bi;
+	BigInt * b = (BigInt *) calloc (sizeof (BigInt), 1);
+	b->digits = (unsigned *) calloc (sizeof (unsigned), n);
+	b->size = n;
+	return b;
 }
 
 
-void BigInt_delete (BigInt * bi) {
-	if (bi) {
-		free (bi->digits);
-		free (bi);
+void BigInt_delete (BigInt * b) {
+	if (b) {
+		free (b->digits);
+		free (b);
 	}
 }
 
@@ -250,7 +250,8 @@ BigInt * BigInt_subtract (const BigInt * larger, const BigInt * smaller) {
 }
 
 
-BigInt * b_elementWiseProduct (const BigInt * b, long n) {
+BigInt * b_multiplyByDigit (const BigInt * b, int n) {
+	n = n % 10;
 	if (!b)
 		return NULL;
 	if (!n)
@@ -284,13 +285,44 @@ BigInt * b_elementWiseProduct (const BigInt * b, long n) {
 }
 
 
+BigInt * b_leftShift (const BigInt * b, int n) {
+	if (!b)
+		return NULL;
+	int size = b->size+n;
+	BigInt * p = b_empty (size);
+	p->sign = b->sign;
+	memcpy (p->digits, b->digits, sizeof (unsigned) * size);
+	for (int i = size; i < size+n; i++)
+		p->digits[i] = 0;
+	return p;
+}
+
+
+BigInt * b_multiplyByNumber (const BigInt * b, long n) {
+	BigInt * sum = BigInt_create (0L);
+	int pow10 = 0;
+	while (n > 0) {
+		int r = n % 10;
+		BigInt * prod = b_multiplyByDigit (b, r);
+		BigInt * prod10 = b_leftShift (prod, pow10);
+		BigInt_delete (prod);
+		BigInt * row = BigInt_add (sum, prod10);
+		sum = row;
+		BigInt_delete (row); BigInt_delete (prod10);
+		n /= 10;
+		pow10++;
+	}
+	return sum;
+}
+
+
 BigInt * b_productHelperNaive (const BigInt * larger, const BigInt * smaller) {
 	BigInt * p = BigInt_create (0L);
 	for (int i = 0; i < smaller->size; i++) {
 		int idx = smaller->size-1-i;		
 		long multiplier = smaller->digits[idx] * (long) pow (10.0, i*1.0);
 		printf ("smaller[%d] = %u, multiplier = %ld\n", idx, smaller->digits[idx], multiplier);
-		BigInt * ewp = b_elementWiseProduct (larger, multiplier);
+		BigInt * ewp = b_multiplyByDigit (larger, multiplier);
 		BigInt_print (ewp); printf ("\n"); 
 		BigInt * row = BigInt_add (ewp, p);
 		BigInt_print (p); printf ("\n"); BigInt_print (row); printf ("\n");
