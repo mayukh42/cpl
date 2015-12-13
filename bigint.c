@@ -65,28 +65,44 @@ void testBinaryFn (bigInt_BinaryFn bFn) {
 	BigInt_delete (b3np); BigInt_delete (b3nn);
 }
 
+void testHelpers () {
+	// trim
+	int size = 10;
+	for (int i = 0; i < 10; i++) {
+		unsigned n = rand () % 8;
+		BigInt * b = b_empty (size);
+		b->digits[2+n] = i ? n : 0;
+		b = b_trim (b);
+		BigInt_print (b); printf (" (index=%d) (fromlast=%d) (digit=%u)\n", 2+n, 8-n, n);
+		BigInt_delete (b);
+	}
+}
+
 void testMultiplyByNumber () { 
 	long n = 42L;
 	BigInt * b = BigInt_create (n); 
 	BigInt_print (b); printf (" b\n");  
 	// multiplyByDigit
-	for (int i = 0; i < 10; i++) {
-		BigInt * p = b_multiplyByDigit (b, i);
-		BigInt_print (p); printf (" p, x%d\n", i); 
-		BigInt_delete (p); 
-	}
+	// for (int i = 0; i < 10; i++) {
+	// 	int k = rand () % 10;
+	// 	printf ("%d\n", k);
+	// 	int digit = k;
+	// 	BigInt * p = b_multiplyByDigit (b, digit);
+	// 	BigInt_print (p); printf (" p, x%u\n", digit); 
+	// 	BigInt_delete (p); 
+	// }
 	// leftShift 
 	for (int i = 0; i < 10; i++) {
 		BigInt * p = b_leftShift (b, i);
-		BigInt_print (p); printf (" p, x%d\n", i); 
+		BigInt_print (p); printf (" p, multiply by 10^%d\n", i); 
 		BigInt_delete (p);   
 	}
 	// multiplyByNumber
 	// long xs[] = {2,25,300,420,1024};
-	// for (int i = 0; i < 5; i++) {
-	// 	BigInt * p = b_multiplyByNumber (b, xs[i]);
+	// for (int i = 0; i < 5; i++) { 
+	// 	BigInt * p = b_multiplyByNumber (b, xs[i]);  
 	// 	BigInt_print (p); printf (" p, x%ld\n", xs[i]); 
-	// 	BigInt_delete (p);   
+	// 	BigInt_delete (p); 
 	// }
 
 	BigInt_delete (b); 
@@ -100,6 +116,7 @@ void runTests() {
 	// testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);
+	// testHelpers ();
 }
 
 int main() {

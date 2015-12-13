@@ -51,6 +51,14 @@ void BigInt_print (const BigInt * b) {
 	}
 }
 
+// for debugging
+void print_empty (const BigInt * b) {
+	if (!b)
+		return;
+	printf ("size: %d, %s", b->size, b->sign ? "-" : " ");
+	outArrInt (b->digits, b->size);
+}
+
 
 /** b_copyPart ()
  * copies digits from a given index onto a new BigInt
@@ -132,7 +140,7 @@ int BigInt_compare (BigInt * larger, BigInt * smaller) {
 }
 
 
-BigInt * b_addHelper (const BigInt * larger, const BigInt * smaller) {
+BigInt * b_adder (const BigInt * larger, const BigInt * smaller) {
 	int size = larger->size;
 	BigInt * b3 = b_empty (size);
 	int carry = 0, j, sum = 0;
@@ -170,7 +178,7 @@ BigInt * b_addHelper (const BigInt * larger, const BigInt * smaller) {
 }
 
 
-BigInt * b_subtractHelper (const BigInt * larger, const BigInt * smaller) {
+BigInt * b_subtracter (const BigInt * larger, const BigInt * smaller) {
 	int size = larger->size;
 	BigInt * b3 = b_empty (size);
 	int carry = 0, j, a, b;
@@ -212,17 +220,17 @@ BigInt * BigInt_add (const BigInt * larger, const BigInt * smaller) {
 	if (!cmp && larger->sign != smaller->sign)
 		b3 = BigInt_create (0L);
 	else if (!larger->sign && smaller->sign) 
-		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+		b3 = cmp > -1 ? b_subtracter (larger, smaller) : b_subtracter (smaller, larger);
 	else if (larger->sign && !smaller->sign) {
-		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+		b3 = cmp > -1 ? b_subtracter (larger, smaller) : b_subtracter (smaller, larger);
 		b3->sign = 1;
 	}
 	else if (larger->sign && smaller->sign) {
-		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3 = cmp > -1 ? b_adder (larger, smaller) : b_adder (smaller, larger);
 		b3->sign = 1;
 	}
 	else 
-		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3 = cmp > -1 ? b_adder (larger, smaller) : b_adder (smaller, larger);
 	return b_trim (b3);
 }
 
@@ -235,32 +243,33 @@ BigInt * BigInt_subtract (const BigInt * larger, const BigInt * smaller) {
 	if (!cmp && larger->sign == smaller->sign)
 		b3 = BigInt_create (0L);
 	else if (!larger->sign && smaller->sign) 
-		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3 = cmp > -1 ? b_adder (larger, smaller) : b_adder (smaller, larger);
 	else if (larger->sign && !smaller->sign) {
-		b3 = cmp > -1 ? b_addHelper (larger, smaller) : b_addHelper (smaller, larger);
+		b3 = cmp > -1 ? b_adder (larger, smaller) : b_adder (smaller, larger);
 		b3->sign = 1;
 	}
 	else if (larger->sign && smaller->sign) {
-		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+		b3 = cmp > -1 ? b_subtracter (larger, smaller) : b_subtracter (smaller, larger);
 		b3->sign = 1;
 	}
 	else 
-		b3 = cmp > -1 ? b_subtractHelper (larger, smaller) : b_subtractHelper (smaller, larger);
+		b3 = cmp > -1 ? b_subtracter (larger, smaller) : b_subtracter (smaller, larger);
 	return b_trim (b3);
 }
 
 
 BigInt * b_multiplyByDigit (const BigInt * b, int n) {
 	n = n % 10;
-	if (!b)
-		return NULL;
-	if (!n)
-		return BigInt_create (0L);
-	if (n == 1)
-		return BigInt_copy (b);
+	if (!b) return NULL;
+	if (!n) return BigInt_create (0L);
+	if (n == 1) return BigInt_copy (b);
 
-	int i = 0, carry, size = b->size+1;
+	int i = 0, carry = 0, size = b->size+1;
 	BigInt * bi = b_empty (size);
+	if (n < 0) {
+		bi->sign = 1;	
+		n *= -1;
+	}
 	for (i = 0; i < size-1; i++) {
 		int p = b->digits[size-2-i] * n + carry;
 		if (p > 9) {
@@ -277,9 +286,6 @@ BigInt * b_multiplyByDigit (const BigInt * b, int n) {
 		else
 			bi->digits[size-1-i] = carry;
 	}
-	if (n < 0)
-		bi->sign = 1;	
-
 	bi = b_trim (bi);
 	return bi;
 }
@@ -291,9 +297,7 @@ BigInt * b_leftShift (const BigInt * b, int n) {
 	int size = b->size+n;
 	BigInt * p = b_empty (size);
 	p->sign = b->sign;
-	memcpy (p->digits, b->digits, sizeof (unsigned) * size);
-	for (int i = size; i < size+n; i++)
-		p->digits[i] = 0;
+	memcpy (p->digits, b->digits, sizeof (unsigned) * b->size);
 	return p;
 }
 
