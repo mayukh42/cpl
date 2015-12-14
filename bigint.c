@@ -98,24 +98,55 @@ void testHelpers () {
 	}
 
 	// multiplyByNumber
-	long xs[] = {2,25,300,420,1024};
+	long ls[] = {2,25,300,420,1024};
 	for (int i = 0; i < 5; i++) { 
-		BigInt * p = b_multiplyByNumber (b, xs[i]);  
-		BigInt_print (p); printf (" p, x%ld\n", xs[i]); 
+		BigInt * p = b_multiplyByNumber (b, ls[i]);  
+		BigInt_print (p); printf (" p, x%ld\n", ls[i]); 
 		BigInt_delete (p); 
 	}
 
 	BigInt_delete (b); 
+
+	// copyRange
+	BigInt * b1 = BigInt_create (2053320533443L);
+	BigInt * b2 = b_copyRange (b1, 2, 8);
+	BigInt_print (b1); printf (" b1\n");
+	BigInt_print (b2); printf (" b2\n");
+	BigInt_delete (b1); BigInt_delete (b2);
+
+	// absCompareRange
+	BigInt * b3 = BigInt_create (2053320533443L); 
+	BigInt * b4 = BigInt_create (4096);
+	BigInt_print (b3); printf (" b3\n");
+	BigInt_print (b4); printf (" b4\n");
+	for (int i = 0; i < 10; i++)
+		printf ("%d\n", b_compareDigitsRange (b3->digits, b4->digits, i, 0, 4));
+	BigInt_delete (b3); BigInt_delete (b4);
+
+	// addRange
+	int x = 4, y = 4, z = x+1;
+	unsigned xs[] = {5,6,7,8}; 
+	unsigned ys[] = {5,3,1,0}; 
+	unsigned * zs = (unsigned *) calloc (sizeof (unsigned), z); 
+	b_addRange (xs, ys, zs, x, y); 
+	outArrInt (xs, x); outArrInt (ys, y); outArrInt (zs, z);
+	free (zs);
+
+	// multiplierRange	
+	size = 4; 
+	unsigned es[] = {5,6,7,8};
+	unsigned fs[] = {1,2,3,4}; 
+	printf ("multipler = %u\n", b_multiplierRange (es, fs, size));
 }
 
-void runTests() {
+void runTests() { 
 	// testBasicBigInt ();
 	// testBinaryFn (BigInt_add);
 	// testBinaryFn (BigInt_subtract); 
-	testBinaryFn (BigInt_product);
+	// testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);
-	// testHelpers ();
+	testHelpers ();
 }
 
 int main() {

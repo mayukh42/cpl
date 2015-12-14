@@ -62,10 +62,10 @@ void print_empty (const BigInt * b) {
 }
 
 
-/** b_copyPart ()
+/** b_copyFrom ()
  * copies digits from a given index onto a new BigInt
  */
-BigInt * b_copyPart (const BigInt * b, int from) {
+BigInt * b_copyFrom (const BigInt * b, int from) {
 	if (!b || from >= b->size)
 		return NULL;
 
@@ -77,6 +77,20 @@ BigInt * b_copyPart (const BigInt * b, int from) {
 	return bi;
 }
 
+/** b_copyRange ()
+ * copies the digits of given BigInt between from (inclusive) and to (exclusive)
+ */
+BigInt * b_copyRange (const BigInt * b, int from, int to) {
+	if (!b || from >= to || from >= b->size || to > b->size || from < 0 || to < 0)
+		return NULL;
+	int size = to-from;
+	BigInt * e = b_empty (size);
+	e->size = size;
+	memcpy (e->digits, b->digits+from, sizeof (unsigned) * size);
+	e->sign = b->sign;
+	return e;
+}
+
 
 /** BigInt_copy ()
  * copies the given BigInt into a new BigInt
@@ -84,7 +98,7 @@ BigInt * b_copyPart (const BigInt * b, int from) {
 BigInt * BigInt_copy (const BigInt * b) {
 	if (!b)
 		return NULL;
-	return b_copyPart (b, 0);
+	return b_copyFrom (b, 0);
 }
 
 
@@ -102,7 +116,7 @@ BigInt * b_trim (BigInt * b) {
 		msd++;
 	}
 	if (msd && msd != b->size) {
-		BigInt * bi = b_copyPart (b, msd);
+		BigInt * bi = b_copyFrom (b, msd);
 		BigInt_delete (b);
 		b = bi;		
 	}
@@ -131,6 +145,74 @@ int BigInt_absCompare (const BigInt * larger, const BigInt * smaller) {
 		}
 	}
 	return cmp;
+}
+
+
+int b_compareDigitsRange (const unsigned * lrg, const unsigned * sml, int lo_lrg, int lo_sml, int size) {
+	int cmp = 0;
+	for (int i = 0; i < size; i++) {
+		if (lrg[lo_lrg+i] > sml[lo_sml+i]) {
+			cmp = 1;
+			break;
+		}
+		else if (lrg[lo_lrg+i] < sml[lo_sml+i]) {
+			cmp = -1;
+			break;
+		}
+	}
+	return cmp;
+}
+
+// zs = xs + ys 
+void b_addRange (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_size, int y_size) {
+	int i = 0, carry = 0, size = x_size+1; 
+	for (; i < y_size; i++) {
+		unsigned z = xs[x_size-i-1] + ys[y_size-i-1] + carry;
+		if (z > 9) {
+			carry = 1;
+			z -= 10;
+		}
+		else
+			carry = 0;
+		zs[size-i-1] = z;
+	}
+	for (; i < x_size; i++) {
+		unsigned z = xs[x_size-i-1] + carry;
+		if (z > 9) {
+			carry = 1;
+			z -= 10;
+		}
+		else
+			carry = 0;
+		zs[size-i-1] = z;
+	}
+	if (carry)
+		zs[0] = carry;
+}
+
+
+unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int size) {
+	int cmp = b_compareDigitsRange (lrg, sml, 0, 0, size);
+	if (!cmp)
+		return 1u;
+
+	unsigned * acc = (unsigned *) calloc (sizeof (unsigned), size+1);
+	unsigned * buf = (unsigned *) calloc (sizeof (unsigned), size);
+	b_addRange (sml, sml, acc, size, size);
+	unsigned p = 1;
+	
+	while (p < 10) {		
+		outArrInt (acc, size+1);
+		cmp = b_compareDigitsRange (lrg, acc, 0, 1, size);
+		if (cmp > 0)
+			p++;
+		else
+			break;
+		memcpy (buf, acc+1, size * sizeof (unsigned));
+		b_addRange (buf, sml, acc, size, size);
+	}
+	free (acc); free (buf);
+	return p;
 }
 
 
