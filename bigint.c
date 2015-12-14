@@ -38,7 +38,7 @@ void testBinaryCmpFn (bigInt_CmpFn cmp) {
 }
 
 void testBinaryFn (bigInt_BinaryFn bFn) {
-	long n1 = 42L, n2 = 25L; 
+	long n1 = 2053320533443L, n2 = 205332L; 
 	BigInt * b1p = BigInt_create (n1); BigInt * b1n = BigInt_create (-n1); 
 	BigInt * b2p = BigInt_create (n2); BigInt * b2n = BigInt_create (-n2); 
 
@@ -76,34 +76,34 @@ void testHelpers () {
 		BigInt_print (b); printf (" (index=%d) (fromlast=%d) (digit=%u)\n", 2+n, 8-n, n);
 		BigInt_delete (b);
 	}
-}
 
-void testMultiplyByNumber () { 
 	long n = 42L;
 	BigInt * b = BigInt_create (n); 
-	BigInt_print (b); printf (" b\n");  
+	BigInt_print (b); printf (" b\n");   
 	// multiplyByDigit
-	// for (int i = 0; i < 10; i++) {
-	// 	int k = rand () % 10;
-	// 	printf ("%d\n", k);
-	// 	int digit = k;
-	// 	BigInt * p = b_multiplyByDigit (b, digit);
-	// 	BigInt_print (p); printf (" p, x%u\n", digit); 
-	// 	BigInt_delete (p); 
-	// }
+	for (int i = 0; i < 10; i++) {
+		int k = rand () % 10;
+		printf ("%d\n", k);
+		int digit = k;
+		BigInt * p = b_multiplyByDigit (b, digit);
+		BigInt_print (p); printf (" p, x%u\n", digit); 
+		BigInt_delete (p); 
+	}
+
 	// leftShift 
 	for (int i = 0; i < 10; i++) {
 		BigInt * p = b_leftShift (b, i);
 		BigInt_print (p); printf (" p, multiply by 10^%d\n", i); 
 		BigInt_delete (p);   
 	}
+
 	// multiplyByNumber
-	// long xs[] = {2,25,300,420,1024};
-	// for (int i = 0; i < 5; i++) { 
-	// 	BigInt * p = b_multiplyByNumber (b, xs[i]);  
-	// 	BigInt_print (p); printf (" p, x%ld\n", xs[i]); 
-	// 	BigInt_delete (p); 
-	// }
+	long xs[] = {2,25,300,420,1024};
+	for (int i = 0; i < 5; i++) { 
+		BigInt * p = b_multiplyByNumber (b, xs[i]);  
+		BigInt_print (p); printf (" p, x%ld\n", xs[i]); 
+		BigInt_delete (p); 
+	}
 
 	BigInt_delete (b); 
 }
@@ -112,8 +112,7 @@ void runTests() {
 	// testBasicBigInt ();
 	// testBinaryFn (BigInt_add);
 	// testBinaryFn (BigInt_subtract); 
-	testMultiplyByNumber ();
-	// testBinaryFn (BigInt_product);
+	testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);
 	// testHelpers ();

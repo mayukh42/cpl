@@ -19,8 +19,10 @@ typedef int (* bigInt_CmpFn) (BigInt * larger, BigInt * smaller);
 
 BigInt * BigInt_create (long n) {
 	BigInt * bi = (BigInt *) calloc (sizeof (BigInt), 1);
-	if (n < 0)
+	if (n < 0) {
 		bi->sign = 1;
+		n = -n;
+	}
 	bi->digits = numToDigits (n);
 	bi->size = !n ? 1 : (int) (1.0 + log10 (n * 1.0));
 	return bi;
@@ -304,46 +306,53 @@ BigInt * b_leftShift (const BigInt * b, int n) {
 
 BigInt * b_multiplyByNumber (const BigInt * b, long n) {
 	BigInt * sum = BigInt_create (0L);
+	int sign = n < 0;
 	int pow10 = 0;
 	while (n > 0) {
 		int r = n % 10;
 		BigInt * prod = b_multiplyByDigit (b, r);
 		BigInt * prod10 = b_leftShift (prod, pow10);
 		BigInt_delete (prod);
-		BigInt * row = BigInt_add (sum, prod10);
-		sum = row;
-		BigInt_delete (row); BigInt_delete (prod10);
+		BigInt * row = BigInt_add (sum, prod10); 
+		BigInt_delete (sum); BigInt_delete (prod10);
+		sum = row;		
 		n /= 10;
 		pow10++;
 	}
+	sum->sign = sign;
 	return sum;
 }
 
 
 BigInt * b_productHelperNaive (const BigInt * larger, const BigInt * smaller) {
-	BigInt * p = BigInt_create (0L);
-	for (int i = 0; i < smaller->size; i++) {
-		int idx = smaller->size-1-i;		
-		long multiplier = smaller->digits[idx] * (long) pow (10.0, i*1.0);
-		printf ("smaller[%d] = %u, multiplier = %ld\n", idx, smaller->digits[idx], multiplier);
-		BigInt * ewp = b_multiplyByDigit (larger, multiplier);
-		BigInt_print (ewp); printf ("\n"); 
-		BigInt * row = BigInt_add (ewp, p);
-		BigInt_print (p); printf ("\n"); BigInt_print (row); printf ("\n");
-		BigInt_delete (ewp); BigInt_delete (p);
-		p = row;
+	BigInt * sum = BigInt_create (0L);
+	int pow10 = 0;
+	int size = smaller->size;
+	for (int i = 0; i < size; i++) {
+		int r = smaller->digits[size-1-i];
+		BigInt * prod = b_multiplyByDigit (larger, r);
+		BigInt * prod10 = b_leftShift (prod, pow10);
+		BigInt_delete (prod);
+		BigInt * row = BigInt_add (sum, prod10); 
+		BigInt_delete (sum); BigInt_delete (prod10);
+		sum = row;	
+		pow10++;	
 	}
-	if (larger->sign != smaller->sign)
-		p->sign = 1;
-	return b_trim (p);
+	sum->sign = smaller->sign;
+	return sum;
 }
 
 
 BigInt * BigInt_product (BigInt * larger, BigInt * smaller) {
 	int cmp = BigInt_absCompare (larger, smaller);
+	int sign = larger->sign != smaller->sign;
+	BigInt * p = NULL;
 	if (cmp == -1)
-		return b_productHelperNaive (smaller, larger);
-	return b_productHelperNaive (larger, smaller);
+		p = b_productHelperNaive (smaller, larger);
+	else
+		p = b_productHelperNaive (larger, smaller);
+	p->sign = sign;
+	return p;
 }
 
 
