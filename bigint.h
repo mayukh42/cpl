@@ -14,8 +14,8 @@ typedef struct BigInt {
 
 /** Binary functions 
  */
-typedef BigInt * (* bigInt_BinaryFn) (BigInt * larger, BigInt * smaller);
-typedef int (* bigInt_CmpFn) (BigInt * larger, BigInt * smaller);
+typedef BigInt * (* bigInt_BinaryFn) (const BigInt * larger, const BigInt * smaller);
+typedef int (* bigInt_CmpFn) (const BigInt * larger, const BigInt * smaller);
 
 BigInt * BigInt_create (long n) {
 	BigInt * bi = (BigInt *) calloc (sizeof (BigInt), 1);
@@ -128,6 +128,15 @@ BigInt * b_trim (BigInt * b) {
 }
 
 
+BigInt * b_createFromDigits (unsigned * digits, int n) {
+	BigInt * b = (BigInt *) calloc (sizeof (BigInt), 1);
+	b->digits = (unsigned *) calloc (sizeof (unsigned), n);
+	memcpy (b->digits, digits, n * sizeof (unsigned));
+	b->size = n;
+	return b_trim (b);
+}
+
+
 int BigInt_absCompare (const BigInt * larger, const BigInt * smaller) {
 	int cmp = 0;
 	if (larger->size > smaller->size) cmp = 1;
@@ -216,7 +225,7 @@ unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int size
 }
 
 
-int BigInt_compare (BigInt * larger, BigInt * smaller) {
+int BigInt_compare (const BigInt * larger, const BigInt * smaller) {
 	int cmp = BigInt_absCompare (larger, smaller);
 	if (cmp == 1 && larger->sign) cmp *= -1;
 	else if (cmp == -1 && smaller->sign) cmp *= -1;
@@ -279,20 +288,47 @@ BigInt * b_subtracter (const BigInt * larger, const BigInt * smaller) {
 		b3->digits[j] = a;
 	}
 	j--;
-	if (carry) {
-		while (j >= 0) {
-			a = larger->digits[j]; b = carry;
-			if (a < b) {
-				a += 10;
-				carry = 1;
-			}
-			else
-				carry = 0;
-			a -= b;
-			b3->digits[j--] = a;
+	while (j >= 0) {
+		a = larger->digits[j]; b = carry;
+		if (a < b) {
+			a += 10;
+			carry = 1;
 		}
+		else
+			carry = 0;
+		a -= b;
+		b3->digits[j--] = a;
 	}
 	return b3;
+}
+
+
+void b_subtractDigits (unsigned * lrg, unsigned * sml, unsigned * buf, int lrg_size, int sml_size) {
+	int carry = 0, j, a, b;
+	for (int i = 0; i < sml_size; i++) {
+		int k = sml_size-1-i; j = lrg_size-1-i;
+		a = lrg[j]; b = sml[k] + carry;
+		if (a < b) {
+			a += 10;
+			carry = 1;
+		}
+		else
+			carry = 0;
+		a -= b;
+		buf[j] = a;
+	}
+	j--;
+	while (j >= 0) {
+		a = lrg[j]; b = carry;
+		if (a < b) {
+			a += 10;
+			carry = 1;
+		}
+		else
+			carry = 0;
+		a -= b;
+		buf[j--] = a;
+	}
 }
 
 
@@ -380,7 +416,6 @@ BigInt * b_leftShift (const BigInt * b, int n) {
 		return NULL;
 	int size = b->size+n;
 	BigInt * p = b_empty (size);
-	p->sign = b->sign;
 	memcpy (p->digits, b->digits, sizeof (unsigned) * b->size);
 	return p;
 }
@@ -420,12 +455,11 @@ BigInt * b_productHelperNaive (const BigInt * larger, const BigInt * smaller) {
 		sum = row;	
 		pow10++;	
 	}
-	sum->sign = smaller->sign;
 	return sum;
 }
 
 
-BigInt * BigInt_product (BigInt * larger, BigInt * smaller) {
+BigInt * BigInt_product (const BigInt * larger, const BigInt * smaller) {
 	int cmp = BigInt_absCompare (larger, smaller);
 	int sign = larger->sign != smaller->sign;
 	BigInt * p = NULL;
@@ -435,6 +469,18 @@ BigInt * BigInt_product (BigInt * larger, BigInt * smaller) {
 		p = b_productHelperNaive (larger, smaller);
 	p->sign = sign;
 	return p;
+}
+
+
+void b_leftShiftDigits (unsigned * digits, int size, int n) {
+	if (n >= size)
+		return;
+
+	int i = n;
+	for (; i < size; i++)
+		digits[i-n] = digits[i];
+	for (i = size-n; i < size; i++)
+		digits[i] = 0;
 }
 
 

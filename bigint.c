@@ -38,7 +38,7 @@ void testBinaryCmpFn (bigInt_CmpFn cmp) {
 }
 
 void testBinaryFn (bigInt_BinaryFn bFn) {
-	long n1 = 2053320533443L, n2 = 205332L; 
+	long n1 = 76781L, n2 = 1234L;
 	BigInt * b1p = BigInt_create (n1); BigInt * b1n = BigInt_create (-n1); 
 	BigInt * b2p = BigInt_create (n2); BigInt * b2n = BigInt_create (-n2); 
 
@@ -65,6 +65,25 @@ void testBinaryFn (bigInt_BinaryFn bFn) {
 	BigInt_delete (b3np); BigInt_delete (b3nn);
 }
 
+/** testFactorial ()
+ * 100! = 933262154439441526816992388562667004907159682643816 \
+ 214685929638952175999932299156089414639761565182862536979208 \
+ 27223758251185210916864000000000000000000000000
+ */
+void testFactorial () {
+	int n = 100, i = n;
+	BigInt * p = BigInt_create (1L);
+	while (i > 0) {
+		BigInt * b = BigInt_create (1L * i);
+		BigInt * pb = BigInt_product (p, b);
+		BigInt_delete (b); BigInt_delete (p);
+		p = pb;
+		i--;
+	}
+	BigInt_print (p); printf (" factorial of %d\n", n);
+	BigInt_delete (p);
+}
+
 void testHelpers () {
 	// trim
 	int size = 10;
@@ -77,10 +96,10 @@ void testHelpers () {
 		BigInt_delete (b);
 	}
 
+	// multiplyByDigit
 	long n = 42L;
 	BigInt * b = BigInt_create (n); 
-	BigInt_print (b); printf (" b\n");   
-	// multiplyByDigit
+	BigInt_print (b); printf (" b\n");  
 	for (int i = 0; i < 10; i++) {
 		int k = rand () % 10;
 		printf ("%d\n", k);
@@ -134,19 +153,35 @@ void testHelpers () {
 
 	// multiplierRange	
 	size = 4; 
-	unsigned es[] = {5,6,7,8};
+	unsigned es[] = {1,1,1,0,6};
 	unsigned fs[] = {1,2,3,4}; 
 	printf ("multipler = %u\n", b_multiplierRange (es, fs, size));
+
+	// leftShiftDigits
+	size = 5; 
+	unsigned us[] = {7,6,7,8,1};
+	b_leftShiftDigits (us, size, 2);
+	outArrInt (us, size);
+
+	// subtractDigits
+	size = 5; int size2 = 4;
+	unsigned u1s[] = {7,6,7,8,1}; 
+	unsigned u2s[] = {1,2,3,4};
+	unsigned * u3s = (unsigned *) calloc (sizeof (unsigned), size);
+	b_subtractDigits (u1s, u2s, u3s, size, size2); 
+	outArrInt (u3s, size);
+	free (u3s);
 }
 
 void runTests() { 
 	// testBasicBigInt ();
 	// testBinaryFn (BigInt_add);
-	// testBinaryFn (BigInt_subtract); 
+	// testBinaryFn (BigInt_subtract);
 	// testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);
 	testHelpers ();
+	// testFactorial ();
 }
 
 int main() {
