@@ -157,7 +157,7 @@ int BigInt_absCompare (const BigInt * larger, const BigInt * smaller) {
 }
 
 
-int b_compareDigits (const unsigned * lrg, const unsigned * sml, int lo_lrg, int lo_sml, int size) {
+int b_compareRange (const unsigned * lrg, const unsigned * sml, int lo_lrg, int lo_sml, int size) {
 	int cmp = 0;
 	for (int i = 0; i < size; i++) {
 		if (lrg[lo_lrg+i] > sml[lo_sml+i]) {
@@ -173,8 +173,18 @@ int b_compareDigits (const unsigned * lrg, const unsigned * sml, int lo_lrg, int
 }
 
 
+int b_compareDigits (const unsigned * lrg, const unsigned * sml, int lrg_size, int sml_size) {
+	if (lrg_size > sml_size)
+		return 1;
+	else if (lrg_size < sml_size)
+		return -1;
+
+	return b_compareRange (lrg, sml, 0, 0, lrg_size);
+}
+
+
 int b_findMsb (const unsigned * xs, int size) {
-	int i = 0, idx = -1; 
+	int i = 0, idx = size-1; 
 	while (i < size) {
 		if (xs[i]) {
 			idx = i;
@@ -187,7 +197,7 @@ int b_findMsb (const unsigned * xs, int size) {
 
 // zs = xs + ys 
 // assume |zs| is at least |xs| + 1
-void b_addDigits (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_size, int y_size, int size) {
+void b_addDigits (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_size, int y_size, int z_size) {
 	int i = 0, carry = 0;
 	for (; i < y_size; i++) {
 		unsigned z = xs[x_size-i-1] + ys[y_size-i-1] + carry;
@@ -197,7 +207,7 @@ void b_addDigits (const unsigned * xs, const unsigned * ys, unsigned * zs, int x
 		}
 		else
 			carry = 0;
-		zs[size-i-1] = z;
+		zs[z_size-i-1] = z;
 	}
 	for (; i < x_size; i++) {
 		unsigned z = xs[x_size-i-1] + carry;
@@ -207,15 +217,15 @@ void b_addDigits (const unsigned * xs, const unsigned * ys, unsigned * zs, int x
 		}
 		else
 			carry = 0;
-		zs[size-i-1] = z;
+		zs[z_size-i-1] = z;
 	}
 	if (carry)
-		zs[size-i-1] = carry;
+		zs[z_size-i-1] = carry;
 }
 
 
 unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int lrg_size, int sml_size) {
-	int cmp = b_compareDigits (lrg, sml, 0, 0, sml_size);
+	int cmp = b_compareRange (lrg, sml, 0, 0, sml_size);
 	if (!cmp)
 		return 1u;
 
@@ -224,19 +234,43 @@ unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int lrg_
 	unsigned * buf = (unsigned *) calloc (sizeof (unsigned), buf_size);	
 	unsigned * acc = (unsigned *) calloc (sizeof (unsigned), buf_size);
 	while (p < 10) {
-		printf ("p = %u\n", p);
-		outArrInt (acc, buf_size); outArrInt (buf, buf_size);
-		b_addDigits (buf, sml, acc, buf_size, sml_size, buf_size);
-		// outArrInt (acc, buf_size); outArrInt (buf, buf_size);
-		p++;
-		cmp = b_compareDigits (lrg, acc, 0, 0, lrg_size);
+		int idx0 = b_findMsb (acc, buf_size);
+		cmp = acc[0] ? b_compareDigits (lrg, acc, lrg_size, buf_size) : b_compareDigits (lrg, acc+idx0, lrg_size, buf_size-idx0);
+		
 		if (cmp < 0)
 			break;
-		memcpy (buf, acc, sizeof (unsigned) * (buf_size));
-		// outArrInt (acc, buf_size); outArrInt (buf, buf_size);
-	}
 
-	return p;
+		b_addDigits (buf, sml, acc, buf_size, sml_size, buf_size);
+		p++;
+		memcpy (buf, acc, sizeof (unsigned) * (buf_size));
+	}
+	free (buf); free (acc);
+
+	return p-1;
+}
+
+
+void b_multiplyDigitsByDigit (unsigned * xs, unsigned * ys, int x_size, int y_size, int n) {
+	if (n < 0)
+		n = -n;
+	n = n % 10;	
+	int carry = 0, i = 0;
+	for (; i < x_size; i++) {
+		int p = xs[x_size-1-i] * n + carry;
+		if (p > 9) {
+			carry = p / 10;
+			p %= 10;
+		}
+		else
+			carry = 0;
+		ys[y_size-1-i] = p;
+	}
+	if (carry) {
+		if (i < 0)
+			ys[0] = carry;
+		else
+			ys[y_size-1-i] = carry;
+	}
 }
 
 
@@ -497,6 +531,11 @@ void b_leftShiftDigits (unsigned * digits, int size, int n) {
 	for (i = size-n; i < size; i++)
 		digits[i] = 0;
 }
+
+
+// void b_divider (const unsigned * ns, const unsigned * ds, unsigned * qs, unsigned * rs, int n, int d, int q, int r) {
+// 	int qi = 0, ri = 0;
+// } 
 
 
 int b_toInt3 (BigInt * b) {
