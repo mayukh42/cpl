@@ -157,7 +157,7 @@ int BigInt_absCompare (const BigInt * larger, const BigInt * smaller) {
 }
 
 
-int b_compareDigitsRange (const unsigned * lrg, const unsigned * sml, int lo_lrg, int lo_sml, int size) {
+int b_compareDigits (const unsigned * lrg, const unsigned * sml, int lo_lrg, int lo_sml, int size) {
 	int cmp = 0;
 	for (int i = 0; i < size; i++) {
 		if (lrg[lo_lrg+i] > sml[lo_sml+i]) {
@@ -172,9 +172,23 @@ int b_compareDigitsRange (const unsigned * lrg, const unsigned * sml, int lo_lrg
 	return cmp;
 }
 
+
+int b_findMsb (const unsigned * xs, int size) {
+	int i = 0, idx = -1; 
+	while (i < size) {
+		if (xs[i]) {
+			idx = i;
+			break;
+		}
+		i++;
+	}
+	return idx;
+} 
+
 // zs = xs + ys 
-void b_addRange (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_size, int y_size) {
-	int i = 0, carry = 0, size = x_size+1; 
+// assume |zs| is at least |xs| + 1
+void b_addDigits (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_size, int y_size, int size) {
+	int i = 0, carry = 0;
 	for (; i < y_size; i++) {
 		unsigned z = xs[x_size-i-1] + ys[y_size-i-1] + carry;
 		if (z > 9) {
@@ -196,31 +210,32 @@ void b_addRange (const unsigned * xs, const unsigned * ys, unsigned * zs, int x_
 		zs[size-i-1] = z;
 	}
 	if (carry)
-		zs[0] = carry;
+		zs[size-i-1] = carry;
 }
 
 
-unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int size) {
-	int cmp = b_compareDigitsRange (lrg, sml, 0, 0, size);
+unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int lrg_size, int sml_size) {
+	int cmp = b_compareDigits (lrg, sml, 0, 0, sml_size);
 	if (!cmp)
 		return 1u;
 
-	unsigned * acc = (unsigned *) calloc (sizeof (unsigned), size+1);
-	unsigned * buf = (unsigned *) calloc (sizeof (unsigned), size);
-	b_addRange (sml, sml, acc, size, size);
-	unsigned p = 1;
-	
-	while (p < 10) {		
-		outArrInt (acc, size+1);
-		cmp = b_compareDigitsRange (lrg, acc, 0, 1, size);
-		if (cmp > 0)
-			p++;
-		else
+	unsigned p = 0;
+	int buf_size = lrg_size+1;
+	unsigned * buf = (unsigned *) calloc (sizeof (unsigned), buf_size);	
+	unsigned * acc = (unsigned *) calloc (sizeof (unsigned), buf_size);
+	while (p < 10) {
+		printf ("p = %u\n", p);
+		outArrInt (acc, buf_size); outArrInt (buf, buf_size);
+		b_addDigits (buf, sml, acc, buf_size, sml_size, buf_size);
+		// outArrInt (acc, buf_size); outArrInt (buf, buf_size);
+		p++;
+		cmp = b_compareDigits (lrg, acc, 0, 0, lrg_size);
+		if (cmp < 0)
 			break;
-		memcpy (buf, acc+1, size * sizeof (unsigned));
-		b_addRange (buf, sml, acc, size, size);
+		memcpy (buf, acc, sizeof (unsigned) * (buf_size));
+		// outArrInt (acc, buf_size); outArrInt (buf, buf_size);
 	}
-	free (acc); free (buf);
+
 	return p;
 }
 

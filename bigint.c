@@ -85,7 +85,7 @@ void testFactorial () {
 }
 
 void testHelpers () {
-	// trim
+	// // trim
 	int size = 10;
 	for (int i = 0; i < 10; i++) {
 		unsigned n = rand () % 8;
@@ -133,29 +133,29 @@ void testHelpers () {
 	BigInt_print (b2); printf (" b2\n");
 	BigInt_delete (b1); BigInt_delete (b2);
 
-	// absCompareRange
+	// compareDigits
 	BigInt * b3 = BigInt_create (2053320533443L); 
 	BigInt * b4 = BigInt_create (4096);
 	BigInt_print (b3); printf (" b3\n");
 	BigInt_print (b4); printf (" b4\n");
 	for (int i = 0; i < 10; i++)
-		printf ("%d\n", b_compareDigitsRange (b3->digits, b4->digits, i, 0, 4));
+		printf ("%d\n", b_compareDigits (b3->digits, b4->digits, i, 0, 4));
 	BigInt_delete (b3); BigInt_delete (b4);
 
-	// addRange
+	// addDigits
 	int x = 4, y = 4, z = x+1;
 	unsigned xs[] = {5,6,7,8}; 
-	unsigned ys[] = {5,3,1,0}; 
+	unsigned ys[] = {5,3,1,0};  
 	unsigned * zs = (unsigned *) calloc (sizeof (unsigned), z); 
-	b_addRange (xs, ys, zs, x, y); 
+	b_addDigits (xs, ys, zs, x, y, z); 
 	outArrInt (xs, x); outArrInt (ys, y); outArrInt (zs, z);
 	free (zs);
 
-	// multiplierRange	
-	size = 4; 
-	unsigned es[] = {1,1,1,0,6};
-	unsigned fs[] = {1,2,3,4}; 
-	printf ("multipler = %u\n", b_multiplierRange (es, fs, size));
+	// multiplierRange 
+	size = 3; int size1 = 3;
+	unsigned es[] = {9,9,9};
+	unsigned fs[] = {1,2,3};  
+	printf ("multipler = %u\n", b_multiplierRange (es, fs, size1, size));
 
 	// leftShiftDigits
 	size = 5; 
