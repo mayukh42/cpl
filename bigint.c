@@ -87,98 +87,108 @@ void testFactorial () {
 void testHelpers () {
 	// // trim
 	int size = 10;
-	// for (int i = 0; i < 10; i++) {
-	// 	unsigned n = rand () % 8;
-	// 	BigInt * b = b_empty (size);
-	// 	b->digits[2+n] = i ? n : 0;
-	// 	b = b_trim (b);
-	// 	BigInt_print (b); printf (" (index=%d) (fromlast=%d) (digit=%u)\n", 2+n, 8-n, n);
-	// 	BigInt_delete (b);
-	// }
+	for (int i = 0; i < 10; i++) {
+		unsigned n = rand () % 8;
+		BigInt * b = b_empty (size);
+		b->digits[2+n] = i ? n : 0;
+		b = b_trim (b);
+		BigInt_print (b); printf (" (index=%d) (fromlast=%d) (digit=%u)\n", 2+n, 8-n, n);
+		BigInt_delete (b);
+	}
 
-	// // multiplyByDigit
-	// long n = 42L;
-	// BigInt * b = BigInt_create (n); 
-	// BigInt_print (b); printf (" b\n");  
-	// for (int i = 0; i < 10; i++) {
-	// 	int k = rand () % 10;
-	// 	printf ("%d\n", k);
-	// 	int digit = k;
-	// 	BigInt * p = b_multiplyByDigit (b, digit);
-	// 	BigInt_print (p); printf (" p, x%u\n", digit); 
-	// 	BigInt_delete (p); 
-	// }
+	// multiplyByDigit
+	long n = 42L;
+	BigInt * b = BigInt_create (n); 
+	BigInt_print (b); printf (" b\n");  
+	for (int i = 0; i < 10; i++) {
+		int k = rand () % 10;
+		printf ("%d\n", k);
+		int digit = k;
+		BigInt * p = b_multiplyByDigit (b, digit);
+		BigInt_print (p); printf (" p, x%u\n", digit); 
+		BigInt_delete (p); 
+	}
 
-	// // leftShift 
-	// for (int i = 0; i < 10; i++) {
-	// 	BigInt * p = b_leftShift (b, i);
-	// 	BigInt_print (p); printf (" p, multiply by 10^%d\n", i); 
-	// 	BigInt_delete (p);   
-	// }
+	// leftShift 
+	for (int i = 0; i < 10; i++) {
+		BigInt * p = b_leftShift (b, i);
+		BigInt_print (p); printf (" p, multiply by 10^%d\n", i); 
+		BigInt_delete (p);   
+	}
 
-	// // multiplyByNumber
-	// long ls[] = {2,25,300,420,1024};
-	// for (int i = 0; i < 5; i++) { 
-	// 	BigInt * p = b_multiplyByNumber (b, ls[i]);  
-	// 	BigInt_print (p); printf (" p, x%ld\n", ls[i]); 
-	// 	BigInt_delete (p); 
-	// }
+	// multiplyByNumber
+	long ls[] = {2,25,300,420,1024};
+	for (int i = 0; i < 5; i++) { 
+		BigInt * p = b_multiplyByNumber (b, ls[i]);  
+		BigInt_print (p); printf (" p, x%ld\n", ls[i]); 
+		BigInt_delete (p); 
+	}
 
-	// BigInt_delete (b); 
+	BigInt_delete (b); 
 
-	// // copyRange
-	// BigInt * b1 = BigInt_create (2053320533443L);
-	// BigInt * b2 = b_copyRange (b1, 2, 8);
-	// BigInt_print (b1); printf (" b1\n");
-	// BigInt_print (b2); printf (" b2\n");
-	// BigInt_delete (b1); BigInt_delete (b2);
+	// copyRange
+	BigInt * b1 = BigInt_create (2053320533443L);
+	BigInt * b2 = b_copyRange (b1, 2, 8);
+	BigInt_print (b1); printf (" b1\n");
+	BigInt_print (b2); printf (" b2\n");
+	BigInt_delete (b1); BigInt_delete (b2);
 
-	// // compareRange
-	// BigInt * b3 = BigInt_create (2053320533443L); 
-	// BigInt * b4 = BigInt_create (4096);
-	// BigInt_print (b3); printf (" b3\n");
-	// BigInt_print (b4); printf (" b4\n");
-	// for (int i = 0; i < 10; i++)
-	// 	printf ("%d\n", b_compareRange (b3->digits, b4->digits, i, 0, 4));
-	// BigInt_delete (b3); BigInt_delete (b4);
+	// compareRange
+	BigInt * b3 = BigInt_create (2053320533443L); 
+	BigInt * b4 = BigInt_create (4096);
+	BigInt_print (b3); printf (" b3\n");
+	BigInt_print (b4); printf (" b4\n");
+	for (int i = 0; i < 10; i++)
+		printf ("%d\n", b_compareRange (b3->digits, b4->digits, i, 0, 4));
+	BigInt_delete (b3); BigInt_delete (b4);
 
-	// // addDigits
-	// int x = 4, y = 4, z = x+1;
-	// unsigned xs[] = {5,6,7,8}; 
-	// unsigned ys[] = {5,3,1,0};  
-	// unsigned * zs = (unsigned *) calloc (sizeof (unsigned), z); 
-	// b_addDigits (xs, ys, zs, x, y, z); 
-	// outArrInt (xs, x); outArrInt (ys, y); outArrInt (zs, z);
-	// free (zs);
+	// addDigits
+	int x = 4, y = 4, z = x+1;
+	unsigned xs[] = {5,6,7,8}; 
+	unsigned ys[] = {5,3,1,0};  
+	unsigned * zs = (unsigned *) calloc (sizeof (unsigned), z); 
+	b_addDigits (xs, ys, zs, x, y, z); 
+	outArrInt (xs, x); outArrInt (ys, y); outArrInt (zs, z);
+	free (zs);
 
-	// // multiplierRange 
-	// size = 3; int size_e = 4; 
-	// unsigned es[] = {1,1,0,5};
-	// unsigned fs[] = {1,2,3};
-	// printf ("multipler = %u\n", b_multiplierRange (es, fs, size_e, size));
+	// multiplierRange 
+	size = 3; int size_e = 4; 
+	unsigned es[] = {1,1,0,5};
+	unsigned fs[] = {1,2,3};
+	printf ("multipler = %u\n", b_multiplierRange (es, fs, size_e, size));
 
-	// // leftShiftDigits
-	// size = 5; 
-	// unsigned us[] = {7,6,7,8,1};
-	// b_leftShiftDigits (us, size, 2);
-	// outArrInt (us, size);
+	// leftShiftDigits
+	size = 5; 
+	unsigned us[] = {7,6,7,8,1};
+	b_leftShiftDigits (us, size, 2);
+	outArrInt (us, size);
 
-	// // subtractDigits
-	// size = 5; int size2 = 4;
-	// unsigned u1s[] = {7,6,7,8,1}; 
-	// unsigned u2s[] = {1,2,3,4};
-	// unsigned * u3s = (unsigned *) calloc (sizeof (unsigned), size);
-	// b_subtractDigits (u1s, u2s, u3s, size, size2); 
-	// outArrInt (u3s, size);
-	// free (u3s);
+	// subtractDigits
+	size = 5; int size2 = 4;
+	unsigned u1s[] = {7,6,7,8,1}; 
+	unsigned u2s[] = {1,2,3,4};
+	unsigned * u3s = (unsigned *) calloc (sizeof (unsigned), size);
+	b_subtractDigits (u1s, u2s, u3s, size, size2); 
+	outArrInt (u3s, size);
+	free (u3s);
 
-	// // multiplyDigitsByDigit
+	// multiplyDigitsByDigit
 	size = 4; 
 	unsigned vs[] = {1,2,3,4};
 	unsigned * v1s = (unsigned *) calloc (sizeof (unsigned), size+1);
 	b_multiplyDigitsByDigit (vs, v1s, size, size+1, 9);
 	outArrInt (vs, size); outArrInt (v1s, size+1);
 	free (v1s);
+}
+
+void testDivide () {
+	int n = 5, d = 3;
+	unsigned ns[] = {1,1,2,5,2};
+	unsigned ds[] = {1,2,1}; 
+	outArrInt (ns, n); outArrInt (ds, d);
+	unsigned * qs = (unsigned *) calloc (sizeof (unsigned), n);
+	unsigned * rs = (unsigned *) calloc (sizeof (unsigned), n);
+	b_divider (ns, ds, qs, rs, n, d); 
 }
 
 void runTests() { 
@@ -188,8 +198,9 @@ void runTests() {
 	// testBinaryFn (BigInt_product);
 	// testBinaryCmpFn (BigInt_compare);
 	// testBinaryCmpFn (BigInt_absCompare);
-	testHelpers ();
+	// testHelpers ();
 	// testFactorial ();
+	testDivide ();
 }
 
 int main() {

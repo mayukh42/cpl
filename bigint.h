@@ -533,9 +533,37 @@ void b_leftShiftDigits (unsigned * digits, int size, int n) {
 }
 
 
-// void b_divider (const unsigned * ns, const unsigned * ds, unsigned * qs, unsigned * rs, int n, int d, int q, int r) {
-// 	int qi = 0, ri = 0;
-// } 
+int b_compareMsb (const unsigned * xs, const unsigned * ys, int n) {
+	int x_msb = b_findMsb (xs, n);
+	int y_msb = b_findMsb (ys, n);
+	int cmp = 0;
+
+	if (x_msb < y_msb || (x_msb == y_msb && xs[x_msb] > ys[y_msb]))
+		cmp = 1;
+	else if (x_msb > y_msb || (x_msb == y_msb && xs[x_msb] < ys[y_msb]))
+		cmp = -1;
+
+	return cmp;
+}
+
+
+void b_divider (const unsigned * ns, const unsigned * ds, unsigned * qs, unsigned * rs, int n, int d) {
+	unsigned * es = (unsigned *) calloc (sizeof (unsigned), d+1);
+	memcpy (rs, ns, n * sizeof (unsigned));
+	// outArrInt (es, d); outArrInt (rs, n);
+	// int cmp = b_compareMsb (ds, rs);
+	int start = 0, end = 0, rmsb = 0, qi = 0;
+	while (start < n) {
+		rmsb = b_findMsb (rs, n);
+		int cmp = b_compareRange (rs, ds, rmsb, 0, d);
+		// range = cmp < 0 ? d+1 : d;
+		// di += range;
+		// p = b_multiplierRange (rs, ds, range, d);
+		// printf ("p = %u, di = %u\n", p, di);
+		// b_subtractDigits (rs, ds, es, range, d);
+		// qs[qi++] = p;
+	}	
+} 
 
 
 int b_toInt3 (BigInt * b) {
