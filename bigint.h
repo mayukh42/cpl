@@ -250,7 +250,7 @@ unsigned b_multiplierRange (const unsigned * lrg, const unsigned * sml, int lrg_
 }
 
 
-void b_multiplyDigitsByDigit (unsigned * xs, unsigned * ys, int x_size, int y_size, int n) {
+void b_multiplyDigitsByDigit (const unsigned * xs, unsigned * ys, int x_size, int y_size, int n) {
 	if (n < 0)
 		n = -n;
 	n = n % 10;	
@@ -547,22 +547,34 @@ int b_compareMsb (const unsigned * xs, const unsigned * ys, int n) {
 }
 
 
+void b_resetDigits (unsigned * xs, int size) {
+	for (int i = 0; i < size; i++)
+		xs[i] = 0;
+}
+
+
 void b_divider (const unsigned * ns, const unsigned * ds, unsigned * qs, unsigned * rs, int n, int d) {
 	unsigned * es = (unsigned *) calloc (sizeof (unsigned), d+1);
 	memcpy (rs, ns, n * sizeof (unsigned));
-	// outArrInt (es, d); outArrInt (rs, n);
-	// int cmp = b_compareMsb (ds, rs);
-	int start = 0, end = 0, rmsb = 0, qi = 0;
-	while (start < n) {
-		rmsb = b_findMsb (rs, n);
-		int cmp = b_compareRange (rs, ds, rmsb, 0, d);
-		// range = cmp < 0 ? d+1 : d;
-		// di += range;
-		// p = b_multiplierRange (rs, ds, range, d);
-		// printf ("p = %u, di = %u\n", p, di);
-		// b_subtractDigits (rs, ds, es, range, d);
-		// qs[qi++] = p;
+	unsigned * fs = (unsigned *) calloc (sizeof (unsigned), d+1);
+	int size = d, rmsb = 0, qidx = 0;
+	while (rmsb+d-1 < n) {
+		int cmp = b_compareRange (rs+rmsb, ds, 0, 0, size);
+		if (rmsb >= n-d && cmp < 0)
+			break;
+		if (cmp < 0) {
+			size = d+1;
+			qs[qidx++] = 0;
+		}
+		unsigned p = b_multiplierRange (rs+rmsb, ds, size, d);
+		qs[qidx++] = p;
+		b_multiplyDigitsByDigit (ds, fs, d, size, p);	
+		b_subtractDigits (rs+rmsb, fs, es, size, size);
+		memcpy (rs+rmsb, es, size * sizeof (unsigned));
+		rmsb = b_findMsb (rs, n); size = d;
+		b_resetDigits (es, d+1); b_resetDigits (fs, d+1);
 	}	
+	free (es); free (fs);
 } 
 
 

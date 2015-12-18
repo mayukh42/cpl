@@ -174,21 +174,23 @@ void testHelpers () {
 
 	// multiplyDigitsByDigit
 	size = 4; 
-	unsigned vs[] = {1,2,3,4};
+	unsigned vs[] = {1,2,3,4}; 
 	unsigned * v1s = (unsigned *) calloc (sizeof (unsigned), size+1);
 	b_multiplyDigitsByDigit (vs, v1s, size, size+1, 9);
 	outArrInt (vs, size); outArrInt (v1s, size+1);
-	free (v1s);
+	free (v1s); 
 }
 
-void testDivide () {
-	int n = 5, d = 3;
-	unsigned ns[] = {1,1,2,5,2};
+void testDivide () { 
+	int n = 3, d = 3; 
+	unsigned ns[] = {9,0,0};  
 	unsigned ds[] = {1,2,1}; 
 	outArrInt (ns, n); outArrInt (ds, d);
-	unsigned * qs = (unsigned *) calloc (sizeof (unsigned), n);
+	unsigned * qs = (unsigned *) calloc (sizeof (unsigned), n-d+1);
 	unsigned * rs = (unsigned *) calloc (sizeof (unsigned), n);
-	b_divider (ns, ds, qs, rs, n, d); 
+	b_divider (ns, ds, qs, rs, n, d);  
+	outArrInt (qs, n-d+1); outArrInt (rs, n);  
+	free (qs); free (rs);  
 }
 
 void runTests() { 
