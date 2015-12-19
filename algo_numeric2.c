@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include "arrayutils.h"
 
 #define MAX_ELEMENTS 128
@@ -135,6 +136,96 @@ void palin (unsigned * xs, int lo, int hi, int carry) {
 }
 
 
+/** computefn ()
+ * f(0) = 0, f(1) = 1, f(2n) = f(n), f(2n+1) = f(n) + f(n+1)
+ */
+int computefn (int n) {
+	if (!n)
+		return 0;
+	else if (n == 1)
+		return 1;
+
+	int * xs = (int *) calloc (sizeof (int), n);
+	xs[0] = 1;
+	for (int i = 2; i <= n; i++) {
+		if (i & 1)
+			xs[i-1] = xs[i/2-1] + xs[i/2];
+		else
+			xs[i-1] = xs[i/2-1];
+	}
+	int a = xs[n-1];
+	free (xs);
+	return a;
+} 
+
+// recursive version
+int computefnRec (int n) {
+	if (!n)
+		return 0;
+	else if (n == 1)
+		return 1;
+	else if (n & 1)
+		return computefnRec (n/2) + computefnRec (n/2 + 1);
+	else
+		return computefnRec (n/2);
+}
+
+// O (lg n) version
+int computefn2 (int n) {
+	int k = n, a = 1, b = 0;
+
+	while (k > 0) {
+		if (k & 1)
+			b += a;
+		else
+			a += b;
+		k /= 2;
+	}
+	return b;
+}
+
+
+/** emulateDivMod ()
+ * emulate integer division and modulus 
+ * w/o using '/' or '*' or '%'
+ * works for a = LONG_MAX too, because in my machine sign bit is not propagated in right shift (see testMachineRightShift ())
+ */
+void emulateDivMod (unsigned long a, unsigned long b, long * pq, long * pr) {
+	if (!b)
+		return;
+
+	unsigned long n = b, q = 0, r = a;
+	while (n <= a)
+		n <<= 1;
+	printf ("a = %lu, b = %ld, n = %ld, r = %ld\n", a, b, n, r);
+	while (n > b) {			
+		n >>= 1;
+		q <<= 1;
+		if (r >= n) {
+			r -= n;
+			q++;
+		}
+	}	
+	* pq = q; * pr = r;
+}
+
+
+void testMachineRightShift () {
+	int a = -32;
+	int b = a >> 1;
+	printf ("a = %d, b = %d\n", a, b);	// prints -32, -16
+}
+
+
+void testEmulateDivMod () {
+	// testMachineRightShift ();
+	unsigned long a = LONG_MAX, b = 32;
+	long q = 0, r = 0;
+	emulateDivMod (a, b, &q, &r);
+	printf ("%lu / %lu: quotient = %ld, remainder = %ld\n", a, b, q, r);
+}
+
+
 void testPlateau () {
 	int xs[] = {1,2,2,3,3,3,4,5,5,6,6,6,6,7};
 	int count = 14;
@@ -211,6 +302,19 @@ void testPalin () {
 }
 
 
+void testComputeFn () {
+	int n = 10001, fn = 0;
+	fn = computefn (n);
+	printf ("f(%d) = %d\n", n, fn);
+
+	fn = computefnRec (n);
+	printf ("f(%d) = %d\n", n, fn);
+
+	fn = computefn2 (n);
+	printf ("f(%d) = %d\n", n, fn);
+}
+
+
 void runTests() {
 	// testPlateau ();
 	// testMissingElement ();
@@ -218,7 +322,9 @@ void runTests() {
 	// testFindSingleElement ();
 	// testTrailingZerosInFact ();
 	// testPrimality ();
-	testPalin ();
+	// testPalin ();
+	// testComputeFn ();
+	testEmulateDivMod ();
 }
 
 int main() {

@@ -39,17 +39,23 @@ Problems coded in C
 
 14. triplelist.c, triplelist.h: Flatten/ unflatten a 2D linked list (doubly linked horizontally, with optional child element vertically)
 
-15. algo_numeric.c: Numerical algorithms
+15. algo_numeric.c, algo_numeric2.c: Numerical algorithms
 
 &nbsp;&nbsp;&nbsp;&nbsp;sqrt_nr, minmax, binary_search, matrix_search, asSumOfSquares, findCelebrity
 
-16. arrayutils.c, arrayutils.h: Some array utility functions (WIP)
+16. arrayutils.c, arrayutils.h: Some array and matrix utility functions, matrix rotation, quicksort
 
 16. trie.c, trie.h: The Trie data structure, including a suggestions algorithm, that returns top n suggestions for a given prefix.
 
 17. oht.h, oht.c: Open-addressed Hashtable (general purpose, using objectlist). This is done in a more OOP way (i.e. with function ptrs in struct)
 
 18. stack.h, stack.c: A general purpose Stack, using objectlist
+
+19. sealer.c: A simple file encrypter using user-defined key
+
+20. utils.c, utils.h: A minimal, general purpose Object struct; helper print functions for all primitive types and string
+
+21. bigint.c, bigint.h: A BigInteger implementation (WIP - supports add, subtract, product, divide)
 
 All programs are valgrind-tested for memory leaks.
 
